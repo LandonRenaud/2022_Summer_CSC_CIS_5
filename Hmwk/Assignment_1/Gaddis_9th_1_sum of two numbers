@@ -1,0 +1,38 @@
+/* 
+ * File:   main.cpp
+ * Author: Landon Renaud
+ * Created on June 22, 2022, 7:31 PM
+ * Purpose: Add two Integers
+ */
+
+//System Libraries
+#include <iostream>
+using namespace std;
+
+//User Libraries
+
+//Global Constants
+//(Mathematical/Physics/Conversions, Higher dimensioned arrays)
+
+//Function Prototypes
+
+//Execution Begins Here
+int main(int argc, char** argv) {
+    //Initialize the Random Number Seed
+
+    //Declare Variables
+    int a, b, total;
+    
+    //Initialize Variables
+    a = 50;
+    b = 100;
+    
+    //Map inputs to outputs -> The Process
+    total = a+b;
+    
+    //Display Results
+    cout << total << endl;
+    
+    //Exit stage right
+    return 0;
+}
