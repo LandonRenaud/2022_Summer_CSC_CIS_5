@@ -1,0 +1,39 @@
+/* 
+ * File:   main.cpp
+ * Author: Landon Renaud
+ * Created on June 23, 2022, 5:32 PM
+ * Purpose: Combine and apply the state and city sales taxes to a purchase
+ */
+
+//System Libraries
+#include <iostream>
+using namespace std;
+
+//User Libraries
+
+//Global Constants
+//Mathematical/Physics/Conversions, Higher dimensioned arrays
+
+//Function Prototypes
+
+//Execution Begins Here
+int main(int argc, char** argv) {
+    //Initialize the Random Number Seed
+
+    //Declare Variables
+    int cost;
+    float statetax, cntytax, ttltax; //cntytax is the county tax value, ttltax is the total sales tax in dollars
+    
+    //Initialize Variables
+    cost = 95, statetax = 0.04, cntytax = 0.02;
+    
+    //Map inputs to outputs -> The Process
+    ttltax = cost*(statetax + cntytax); //adds state and county sales taxes before applying the tax to the cost to find the total 
+    
+    //Display Results
+    cout << "The item costs $95. State sales tax is 4%, and county sales tax is 2%.\nThe total sales tax owed is: $" << ttltax << endl;
+    
+    //Exit stage right
+    return 0;
+}
+
