@@ -1,0 +1,503 @@
+
+/* 
+ * File:   main.cpp
+ * Author: landon Renaud
+ * * Created on July 23, 2022, 8:24 PM
+ * Purpose: develop code for printing the game board for both the CPU and the player
+ */
+
+#include <cstdlib>
+#include <string>
+#include <cstdlib>
+#include <iostream>
+#include <ctime>
+using namespace std;
+
+/*
+ * 
+ */
+int main(int argc, char** argv) {
+    //Initialize the Random Number Seed
+    srand(static_cast<unsigned short>(time(0)));
+    
+    //Declare Variables
+    unsigned short dcount,  // destroyer count
+                   bttlcnt; // battleship count
+    char again,
+         schoice; // ship choice
+    unsigned short direc;
+    string tile;
+    // player board variables
+    unsigned short a1 = 0, a2 = 0, a3 = 0, a4 = 0, a5 = 0,
+                   b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0,
+                   c1 = 0, c2 = 0, c3 = 0, c4 = 0, c5 = 0,
+                   d1 = 0, d2 = 0, d3 = 0, d4 = 0, d5 = 0,
+                   e1 = 0, e2 = 0, e3 = 0, e4 = 0, e5 = 0;
+    // CPU board variables
+    unsigned short ca1 = 0, ca2 = 0, ca3 = 0, ca4 = 2, ca5 = 0,
+                   cb1 = 2, cb2 = 2, cb3 = 0, cb4 = 2, cb5 = 0,
+                   cc1 = 0, cc2 = 0, cc3 = 0, cc4 = 0, cc5 = 0,
+                   cd1 = 0, cd2 = 0, cd3 = 2, cd4 = 2, cd5 = 2,
+                   ce1 = 0, ce2 = 0, ce3 = 0, ce4 = 0, ce5 = 0;
+
+    cout << " Player's  Board\t\t   CPU's Board\n";
+    cout << "    1 2 3 4 5\t\t\t    1 2 3 4 5\n   - - - - - - \t\t\t   - - - - - - \n"
+         << "A | " << a1 << " " << a2 << " " << a3 << " " << a4 << " " << a5 << " |" 
+         << "\t\t\t" << "A | " << ca1 << " " << ca2 << " " << ca3 << " " << ca4 << " " << ca5 << " |" << endl
+         << "B | " << b1 << " " << b2 << " " << b3 << " " << b4 << " " << b5 << " |" 
+         << "\t\t\t" << "B | " << cb1 << " " << cb2 << " " << cb3 << " " << cb4 << " " << cb5 << " |" << endl
+         << "C | " << c1 << " " << c2 << " " << c3 << " " << c4 << " " << c5 << " |" 
+         << "\t\t\t" << "C | " << cc1 << " " << cc2 << " " << cc3 << " " << cc4 << " " << cc5 << " |" << endl
+         << "D | " << d1 << " " << d2 << " " << d3 << " " << d4 << " " << d5 << " |"
+         << "\t\t\t" << "D | " << cd1 << " " << cd2 << " " << cd3 << " " << cd4 << " " << cd5 << " |" << endl
+         << "E | " << e1 << " " << e2 << " " << e3 << " " << e4 << " " << e5 << " |" 
+         << "\t\t\t" << "E | " << ce1 << " " << ce2 << " " << ce3 << " " << ce4 << " " << ce5 << " |" << endl
+         << "   - - - - - - \t\t\t   - - - - - - " << endl << endl << endl;
+    
+    /*
+     * 0 = 0
+     * 1 = M
+     * 2 = D
+     * 3 = B
+     * 4 = H
+     */
+    
+    /* 
+     * EX: a1
+     * a1 = 0, clear space
+     * a1 = 1, missed shot
+     * a1 = 2, Destroyer ship tile
+     * a1 = 3, Battleship ship tile
+     * a1 = 4, hit
+     */
+    //PRINT GAME BOARD  
+    cout << " Player's  Board\t\t   CPU's Board\n";
+    cout << "    1 2 3 4 5\t\t\t    1 2 3 4 5\n   - - - - - - \t\t\t   - - - - - - \n";
+    cout << "A | ";
+    if(a1 == 0) cout << "0 ";
+    else if(a1 == 1) cout << "M ";
+    else if(a1 == 2) cout << "D ";
+    else if(a1 == 3) cout << "B ";
+    else if(a1 == 4) cout << "H ";
+    if(a2 == 0) cout << "0 ";
+    else if(a2 == 1) cout << "M ";
+    else if(a2 == 2) cout << "D ";
+    else if(a2 == 3) cout << "B ";
+    else if(a2 == 4) cout << "H ";
+    if(a3 == 0) cout << "0 ";
+    else if(a3 == 1) cout << "M ";
+    else if(a3 == 2) cout << "D ";
+    else if(a3 == 3) cout << "B ";
+    else if(a3 == 4) cout << "H ";
+    if(a4 == 0) cout << "0 ";
+    else if(a4 == 1) cout << "M ";
+    else if(a4 == 2) cout << "D ";
+    else if(a4 == 3) cout << "B ";
+    else if(a4 == 4) cout << "H ";
+    if(a5 == 0) cout << "0 ";
+    else if(a5 == 1) cout << "M ";
+    else if(a5 == 2) cout << "D ";
+    else if(a5 == 3) cout << "B ";
+    else if(a5 == 4) cout << "H ";
+    cout << "|";
+    cout << "\t\t\tA | ";
+    if(ca1 == 0) cout << "0 ";
+    else if(ca1 == 1) cout << "M ";
+    else if(ca1 == 2) cout << "0 ";
+    else if(ca1 == 3) cout << "0 ";
+    else if(ca1 == 4) cout << "H ";
+    if(ca2 == 0) cout << "0 ";
+    else if(ca2 == 1) cout << "M ";
+    else if(ca2 == 2) cout << "0 ";
+    else if(ca2 == 3) cout << "0 ";
+    else if(ca2 == 4) cout << "H ";
+    if(ca3 == 0) cout << "0 ";
+    else if(ca3 == 1) cout << "M ";
+    else if(ca3 == 2) cout << "0 ";
+    else if(ca3 == 3) cout << "0 ";
+    else if(ca3 == 4) cout << "H ";
+    if(ca4 == 0) cout << "0 ";
+    else if(ca4 == 1) cout << "M ";
+    else if(ca4 == 2) cout << "0 ";
+    else if(ca4 == 3) cout << "0 ";
+    else if(ca4 == 4) cout << "H ";
+    if(ca5 == 0) cout << "0 ";
+    else if(ca5 == 1) cout << "M ";
+    else if(ca5 == 2) cout << "0 ";
+    else if(ca5 == 3) cout << "0 ";
+    else if(ca5 == 4) cout << "H ";
+    cout << "|";
+    cout << endl;
+    cout << "B | ";
+    if(b1 == 0) cout << "0 ";
+    else if(b1 == 1) cout << "M ";
+    else if(b1 == 2) cout << "D ";
+    else if(b1 == 3) cout << "B ";
+    else if(b1 == 4) cout << "H ";
+    if(b2 == 0) cout << "0 ";
+    else if(b2 == 1) cout << "M ";
+    else if(b2 == 2) cout << "D ";
+    else if(b2 == 3) cout << "B ";
+    else if(b2 == 4) cout << "H ";
+    if(b3 == 0) cout << "0 ";
+    else if(b3 == 1) cout << "M ";
+    else if(b3 == 2) cout << "D ";
+    else if(b3 == 3) cout << "B ";
+    else if(b3 == 4) cout << "H ";
+    if(b4 == 0) cout << "0 ";
+    else if(b4 == 1) cout << "M ";
+    else if(b4 == 2) cout << "D ";
+    else if(b4 == 3) cout << "B ";
+    else if(b4 == 4) cout << "H ";
+    if(b5 == 0) cout << "0 ";
+    else if(b5 == 1) cout << "M ";
+    else if(b5 == 2) cout << "D ";
+    else if(b5 == 3) cout << "B ";
+    else if(b5 == 4) cout << "H ";
+    cout << "|";
+    cout << "\t\t\tB | ";
+    if(cb1 == 0) cout << "0 ";
+    else if(cb1 == 1) cout << "M ";
+    else if(cb1 == 2) cout << "0 ";
+    else if(cb1 == 3) cout << "0 ";
+    else if(cb1 == 4) cout << "H ";
+    if(cb2 == 0) cout << "0 ";
+    else if(cb2 == 1) cout << "M ";
+    else if(cb2 == 2) cout << "0 ";
+    else if(cb2 == 3) cout << "0 ";
+    else if(cb2 == 4) cout << "H ";
+    if(cb3 == 0) cout << "0 ";
+    else if(cb3 == 1) cout << "M ";
+    else if(cb3 == 2) cout << "0 ";
+    else if(cb3 == 3) cout << "0 ";
+    else if(cb3 == 4) cout << "H ";
+    if(cb4 == 0) cout << "0 ";
+    else if(ca4 == 1) cout << "M ";
+    else if(cb4 == 2) cout << "0 ";
+    else if(cb4 == 3) cout << "0 ";
+    else if(cb4 == 4) cout << "H ";
+    if(cb5 == 0) cout << "0 ";
+    else if(cb5 == 1) cout << "M ";
+    else if(cb5 == 2) cout << "0 ";
+    else if(cb5 == 3) cout << "0 ";
+    else if(cb5 == 4) cout << "H ";
+    cout << "|";
+    cout << endl;
+    cout << "C | ";
+    if(c1 == 0) cout << "0 ";
+    else if(c1 == 1) cout << "M ";
+    else if(c1 == 2) cout << "D ";
+    else if(c1 == 3) cout << "B ";
+    else if(c1 == 4) cout << "H ";
+    if(c2 == 0) cout << "0 ";
+    else if(c2 == 1) cout << "M ";
+    else if(c2 == 2) cout << "D ";
+    else if(c2 == 3) cout << "B ";
+    else if(c2 == 4) cout << "H ";
+    if(c3 == 0) cout << "0 ";
+    else if(c3 == 1) cout << "M ";
+    else if(c3 == 2) cout << "D ";
+    else if(c3 == 3) cout << "B ";
+    else if(c3 == 4) cout << "H ";
+    if(c4 == 0) cout << "0 ";
+    else if(c4 == 1) cout << "M ";
+    else if(c4 == 2) cout << "D ";
+    else if(c4 == 3) cout << "B ";
+    else if(c4 == 4) cout << "H ";
+    if(c5 == 0) cout << "0 ";
+    else if(c5 == 1) cout << "M ";
+    else if(c5 == 2) cout << "D ";
+    else if(c5 == 3) cout << "B ";
+    else if(c5 == 4) cout << "H ";
+    cout << "|";
+    cout << "\t\t\tC | ";
+    if(cc1 == 0) cout << "0 ";
+    else if(cc1 == 1) cout << "M ";
+    else if(cc1 == 2) cout << "0 ";
+    else if(cc1 == 3) cout << "0 ";
+    else if(cc1 == 4) cout << "H ";
+    if(cc2 == 0) cout << "0 ";
+    else if(cc2 == 1) cout << "M ";
+    else if(cc2 == 2) cout << "0 ";
+    else if(cc2 == 3) cout << "0 ";
+    else if(cc2 == 4) cout << "H ";
+    if(cc3 == 0) cout << "0 ";
+    else if(cc3 == 1) cout << "M ";
+    else if(cc3 == 2) cout << "0 ";
+    else if(cc3 == 3) cout << "0 ";
+    else if(cc3 == 4) cout << "H ";
+    if(cc4 == 0) cout << "0 ";
+    else if(cc4 == 1) cout << "M ";
+    else if(cc4 == 2) cout << "0 ";
+    else if(cc4 == 3) cout << "0 ";
+    else if(cc4 == 4) cout << "H ";
+    if(cc5 == 0) cout << "0 ";
+    else if(cc5 == 1) cout << "M ";
+    else if(cc5 == 2) cout << "0 ";
+    else if(cc5 == 3) cout << "0 ";
+    else if(cc5 == 4) cout << "H ";
+    cout << "|";
+    cout << endl;
+    cout << "D | ";
+    if(d1 == 0) cout << "0 ";
+    else if(d1 == 1) cout << "M ";
+    else if(d1 == 2) cout << "D ";
+    else if(d1 == 3) cout << "B ";
+    else if(d1 == 4) cout << "H ";
+    if(d2 == 0) cout << "0 ";
+    else if(d2 == 1) cout << "M ";
+    else if(d2 == 2) cout << "D ";
+    else if(d2 == 3) cout << "B ";
+    else if(d2 == 4) cout << "H ";
+    if(d3 == 0) cout << "0 ";
+    else if(d3 == 1) cout << "M ";
+    else if(d3 == 2) cout << "D ";
+    else if(d3 == 3) cout << "B ";
+    else if(d3 == 4) cout << "H ";
+    if(d4 == 0) cout << "0 ";
+    else if(d4 == 1) cout << "M ";
+    else if(d4 == 2) cout << "D ";
+    else if(d4 == 3) cout << "B ";
+    else if(d4 == 4) cout << "H ";
+    if(d5 == 0) cout << "0 ";
+    else if(d5 == 1) cout << "M ";
+    else if(d5 == 2) cout << "D ";
+    else if(d5 == 3) cout << "B ";
+    else if(d5 == 4) cout << "H ";
+    cout << "|";
+    cout << "\t\t\tD | ";
+    if(cd1 == 0) cout << "0 ";
+    else if(cd1 == 1) cout << "M ";
+    else if(cd1 == 2) cout << "0 ";
+    else if(cd1 == 3) cout << "0 ";
+    else if(cd1 == 4) cout << "H ";
+    if(cd2 == 0) cout << "0 ";
+    else if(cd2 == 1) cout << "M ";
+    else if(cd2 == 2) cout << "0 ";
+    else if(cd2 == 3) cout << "0 ";
+    else if(cd2 == 4) cout << "H ";
+    if(cd3 == 0) cout << "0 ";
+    else if(cd3 == 1) cout << "M ";
+    else if(cd3 == 2) cout << "0 ";
+    else if(cd3 == 3) cout << "0 ";
+    else if(cd3 == 4) cout << "H ";
+    if(cd4 == 0) cout << "0 ";
+    else if(cd4 == 1) cout << "M ";
+    else if(cd4 == 2) cout << "0 ";
+    else if(cd4 == 3) cout << "0 ";
+    else if(cd4 == 4) cout << "H ";
+    if(cd5 == 0) cout << "0 ";
+    else if(cd5 == 1) cout << "M ";
+    else if(cd5 == 2) cout << "0 ";
+    else if(cd5 == 3) cout << "0 ";
+    else if(cd5 == 4) cout << "H ";
+    cout << "|";
+    cout << endl;
+    cout << "E | ";
+    if(e1 == 0) cout << "0 ";
+    else if(e1 == 1) cout << "M ";
+    else if(e1 == 2) cout << "D ";
+    else if(e1 == 3) cout << "B ";
+    else if(e1 == 4) cout << "H ";
+    if(e2 == 0) cout << "0 ";
+    else if(e2 == 1) cout << "M ";
+    else if(e2 == 2) cout << "D ";
+    else if(e2 == 3) cout << "B ";
+    else if(e2 == 4) cout << "H ";
+    if(e3 == 0) cout << "0 ";
+    else if(e3 == 1) cout << "M ";
+    else if(e3 == 2) cout << "D ";
+    else if(e3 == 3) cout << "B ";
+    else if(e3 == 4) cout << "H ";
+    if(e4 == 0) cout << "0 ";
+    else if(e4 == 1) cout << "M ";
+    else if(e4 == 2) cout << "D ";
+    else if(e4 == 3) cout << "B ";
+    else if(e4 == 4) cout << "H ";
+    if(e5 == 0) cout << "0 ";
+    else if(e5 == 1) cout << "M ";
+    else if(e5 == 2) cout << "D ";
+    else if(e5 == 3) cout << "B ";
+    else if(e5 == 4) cout << "H ";
+    cout << "|";
+    cout << "\t\t\tE | ";
+    if(ce1 == 0) cout << "0 ";
+    else if(ce1 == 1) cout << "M ";
+    else if(ce1 == 2) cout << "0 ";
+    else if(ce1 == 3) cout << "0 ";
+    else if(ce1 == 4) cout << "H ";
+    if(ce2 == 0) cout << "0 ";
+    else if(ce2 == 1) cout << "M ";
+    else if(ce2 == 2) cout << "0 ";
+    else if(ce2 == 3) cout << "0 ";
+    else if(ce2 == 4) cout << "H ";
+    if(ce3 == 0) cout << "0 ";
+    else if(ce3 == 1) cout << "M ";
+    else if(ce3 == 2) cout << "0 ";
+    else if(ce3 == 3) cout << "0 ";
+    else if(ce3 == 4) cout << "H ";
+    if(ce4 == 0) cout << "0 ";
+    else if(ce4 == 1) cout << "M ";
+    else if(ce4 == 2) cout << "0 ";
+    else if(ce4 == 3) cout << "0 ";
+    else if(ce4 == 4) cout << "H ";
+    if(ce5 == 0) cout << "0 ";
+    else if(ce5 == 1) cout << "M ";
+    else if(ce5 == 2) cout << "0 ";
+    else if(ce5 == 3) cout << "0 ";
+    else if(ce5 == 4) cout << "H ";
+    cout << "|";
+    cout << "\n   - - - - - - \t\t\t   - - - - - - " << endl << endl << endl;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    cout << "    1 2 3 4 5\n   - - - - - - \n";
+    cout << "A | ";
+    if(a1 == 0) cout << "0 ";
+    else if(a1 == 1) cout << "M ";
+    else if(a1 == 2) cout << "D ";
+    else if(a1 == 3) cout << "B ";
+    else if(a1 == 4) cout << "H ";
+    if(a2 == 0) cout << "0 ";
+    else if(a2 == 1) cout << "M ";
+    else if(a2 == 2) cout << "D ";
+    else if(a2 == 3) cout << "B ";
+    else if(a2 == 4) cout << "H ";
+    if(a3 == 0) cout << "0 ";
+    else if(a3 == 1) cout << "M ";
+    else if(a3 == 2) cout << "D ";
+    else if(a3 == 3) cout << "B ";
+    else if(a3 == 4) cout << "H ";
+    if(a4 == 0) cout << "0 ";
+    else if(a4 == 1) cout << "M ";
+    else if(a4 == 2) cout << "D ";
+    else if(a4 == 3) cout << "B ";
+    else if(a4 == 4) cout << "H ";
+    if(a5 == 0) cout << "0 ";
+    else if(a5 == 1) cout << "M ";
+    else if(a5 == 2) cout << "D ";
+    else if(a5 == 3) cout << "B ";
+    else if(a5 == 4) cout << "H ";
+    cout << "|";
+    cout << endl;
+    cout << "B | ";
+    if(b1 == 0) cout << "0 ";
+    else if(b1 == 1) cout << "M ";
+    else if(b1 == 2) cout << "D ";
+    else if(b1 == 3) cout << "B ";
+    else if(b1 == 4) cout << "H ";
+    if(b2 == 0) cout << "0 ";
+    else if(b2 == 1) cout << "M ";
+    else if(b2 == 2) cout << "D ";
+    else if(b2 == 3) cout << "B ";
+    else if(b2 == 4) cout << "H ";
+    if(b3 == 0) cout << "0 ";
+    else if(b3 == 1) cout << "M ";
+    else if(b3 == 2) cout << "D ";
+    else if(b3 == 3) cout << "B ";
+    else if(b3 == 4) cout << "H ";
+    if(b4 == 0) cout << "0 ";
+    else if(b4 == 1) cout << "M ";
+    else if(b4 == 2) cout << "D ";
+    else if(b4 == 3) cout << "B ";
+    else if(b4 == 4) cout << "H ";
+    if(b5 == 0) cout << "0 ";
+    else if(b5 == 1) cout << "M ";
+    else if(b5 == 2) cout << "D ";
+    else if(b5 == 3) cout << "B ";
+    else if(b5 == 4) cout << "H ";
+    cout << "|";
+    cout << endl;
+    cout << "C | ";
+    if(c1 == 0) cout << "0 ";
+    else if(c1 == 1) cout << "M ";
+    else if(c1 == 2) cout << "D ";
+    else if(c1 == 3) cout << "B ";
+    else if(c1 == 4) cout << "H ";
+    if(c2 == 0) cout << "0 ";
+    else if(c2 == 1) cout << "M ";
+    else if(c2 == 2) cout << "D ";
+    else if(c2 == 3) cout << "B ";
+    else if(c2 == 4) cout << "H ";
+    if(c3 == 0) cout << "0 ";
+    else if(c3 == 1) cout << "M ";
+    else if(c3 == 2) cout << "D ";
+    else if(c3 == 3) cout << "B ";
+    else if(c3 == 4) cout << "H ";
+    if(c4 == 0) cout << "0 ";
+    else if(c4 == 1) cout << "M ";
+    else if(c4 == 2) cout << "D ";
+    else if(c4 == 3) cout << "B ";
+    else if(c4 == 4) cout << "H ";
+    if(c5 == 0) cout << "0 ";
+    else if(c5 == 1) cout << "M ";
+    else if(c5 == 2) cout << "D ";
+    else if(c5 == 3) cout << "B ";
+    else if(c5 == 4) cout << "H ";
+    cout << "|";
+    cout << endl;
+    cout << "D | ";
+    if(d1 == 0) cout << "0 ";
+    else if(d1 == 1) cout << "M ";
+    else if(d1 == 2) cout << "D ";
+    else if(d1 == 3) cout << "B ";
+    else if(d1 == 4) cout << "H ";
+    if(d2 == 0) cout << "0 ";
+    else if(d2 == 1) cout << "M ";
+    else if(d2 == 2) cout << "D ";
+    else if(d2 == 3) cout << "B ";
+    else if(d2 == 4) cout << "H ";
+    if(d3 == 0) cout << "0 ";
+    else if(d3 == 1) cout << "M ";
+    else if(d3 == 2) cout << "D ";
+    else if(d3 == 3) cout << "B ";
+    else if(d3 == 4) cout << "H ";
+    if(d4 == 0) cout << "0 ";
+    else if(d4 == 1) cout << "M ";
+    else if(d4 == 2) cout << "D ";
+    else if(d4 == 3) cout << "B ";
+    else if(d4 == 4) cout << "H ";
+    if(d5 == 0) cout << "0 ";
+    else if(d5 == 1) cout << "M ";
+    else if(d5 == 2) cout << "D ";
+    else if(d5 == 3) cout << "B ";
+    else if(d5 == 4) cout << "H ";
+    cout << "|";
+    cout << endl;
+    cout << "E | ";
+    if(e1 == 0) cout << "0 ";
+    else if(e1 == 1) cout << "M ";
+    else if(e1 == 2) cout << "D ";
+    else if(e1 == 3) cout << "B ";
+    else if(e1 == 4) cout << "H ";
+    if(e2 == 0) cout << "0 ";
+    else if(e2 == 1) cout << "M ";
+    else if(e2 == 2) cout << "D ";
+    else if(e2 == 3) cout << "B ";
+    else if(e2 == 4) cout << "H ";
+    if(e3 == 0) cout << "0 ";
+    else if(e3 == 1) cout << "M ";
+    else if(e3 == 2) cout << "D ";
+    else if(e3 == 3) cout << "B ";
+    else if(e3 == 4) cout << "H ";
+    if(e4 == 0) cout << "0 ";
+    else if(e4 == 1) cout << "M ";
+    else if(e4 == 2) cout << "D ";
+    else if(e4 == 3) cout << "B ";
+    else if(e4 == 4) cout << "H ";
+    if(e5 == 0) cout << "0 ";
+    else if(e5 == 1) cout << "M ";
+    else if(e5 == 2) cout << "D ";
+    else if(e5 == 3) cout << "B ";
+    else if(e5 == 4) cout << "H ";
+    cout << "|";
+    cout << "\n   - - - - - - " << endl << endl << endl;
+    return 0;
+}
+
