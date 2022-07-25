@@ -1,0 +1,1255 @@
+/* 
+ * File:   main.cpp
+ * Author: Landon Renaud
+ * Created on July 19, 2022, 9:29 PM
+ * Purpose: vers1: setting up the game start sequence
+ */
+
+//System Libraries
+#include <cstdlib>
+#include <iostream>
+#include <iomanip>
+#include <ctime>
+#include <fstream>
+
+using namespace std;
+
+//User Libraries
+
+//Global Constants
+//Mathematical/Physics/Conversions, Higher dimensioned arrays
+
+//Function Prototypes
+
+//Execution Begins Here
+int main(int argc, char** argv) {
+    //Initialize the Random Number Seed
+    srand(static_cast<unsigned short>(time(0)));
+    
+    //Declare Variables
+    unsigned short dcount,  // destroyer count
+                   bttlcnt; // battleship count
+    char again,
+         schoice; // ship choice
+    unsigned short direc;
+    string tile;
+    // player board variables
+    unsigned short a1 = 0, a2 = 0, a3 = 0, a4 = 0, a5 = 0,
+                   b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0,
+                   c1 = 0, c2 = 0, c3 = 0, c4 = 0, c5 = 0,
+                   d1 = 0, d2 = 0, d3 = 0, d4 = 0, d5 = 0,
+                   e1 = 0, e2 = 0, e3 = 0, e4 = 0, e5 = 0;
+    // CPU board variables
+    unsigned short ca1 = 0, ca2 = 0, ca3 = 0, ca4 = 2, ca5 = 0,
+                   cb1 = 2, cb2 = 2, cb3 = 0, cb4 = 2, cb5 = 0,
+                   cc1 = 0, cc2 = 0, cc3 = 0, cc4 = 0, cc5 = 0,
+                   cd1 = 0, cd2 = 0, cd3 = 2, cd4 = 2, cd5 = 2,
+                   ce1 = 0, ce2 = 0, ce3 = 0, ce4 = 0, ce5 = 0;
+    /* 
+     * EX: a1
+     * a1 = 0, clear space
+     * a1 = 1, missed shot
+     * a1 = 2, ship tile
+     * a1 = 3, ship hit
+     */
+    
+    do{
+        dcount = 2;
+        bttlcnt = 1;
+        // Output board for user to see
+        cout << "BATTLESHIP GAME\n"
+             << "Play versus a computer and see if you can sink its ships\nbefore it sinks yours\n\n";
+    
+        // GAME SETUP OCCURRS HERE: Lines 56-1217
+        // get the ship placements
+        cout << "Place your ships on the board:\n";
+        cout << "What tile will you put your ship on?\nInput tile, then ship, then direction:" 
+             << "\nKey: B for Battleship | D for Destroyer \n     Direction:\n     1: Up | 2: Right | 3: Down | 4: Left"
+             << "\n     Example input: B a1 3";
+        while((dcount > 0) || (bttlcnt > 0)) { 
+            cout << "\n\nBattleships: " << bttlcnt << "\nDestroyers: " << dcount << endl << endl;
+            cout << "    1 2 3 4 5\n   - - - - - - \n"
+                 << "A | " << a1 << " " << a2 << " " << a3 << " " << a4 << " " << a5 << " |" << endl
+                 << "B | " << b1 << " " << b2 << " " << b3 << " " << b4 << " " << b5 << " |" << endl
+                 << "C | " << c1 << " " << c2 << " " << c3 << " " << c4 << " " << c5 << " |" << endl
+                 << "D | " << d1 << " " << d2 << " " << d3 << " " << d4 << " " << d5 << " |" << endl
+                 << "E | " << e1 << " " << e2 << " " << e3 << " " << e4 << " " << e5 << " |" << endl
+                 << "   - - - - - - \n" << endl;
+            cout << "Place ship: \n";
+            
+            cin >> schoice >> tile >> direc;
+            switch(schoice) {
+                case 'd':
+                case 'D': {
+                    //  ROW A
+                    if(tile == "a1" || tile == "a2" || tile == "a3" || tile == "a4" || tile == "a5") { // validates the destroyer's position on row A
+                        if(direc == 1) {
+                            cout << "Error, ship goes off the board";
+                            break;
+                        } // SHIP PLACEMENTS BELOW:
+                        else if(tile == "a1" && direc == 4) cout << "Error, ship goes off the board";
+                        else if(tile == "a1" && direc == 2) {
+                            if(a1 == 2 || a2 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                a1 = 2; a2 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "a1" && direc == 3) {
+                            if(a1 == 2 || b1 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                a1 = 2; b1 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "a2" && direc == 2) {
+                            if(a2 == 2 || a3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                a2 = 2; a3 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "a2" && direc == 3) {
+                            if(a2 == 2 || b2 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                a2 = 2; b2 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "a2" && direc == 4) {
+                            if(a2 == 2 || a1 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                a2 = 2; a1 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "a3" && direc == 2) {
+                            if(a3 == 2 || a4 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                a3 = 2; a4 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "a3" && direc == 3) {
+                            if(a3 == 2 || b3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                a3 = 2; b3 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "a3" && direc == 4) {
+                            if(a3 == 2 || a2 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                a3 = 2; a2 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "a4" && direc == 2) {
+                            if(a4 == 2 || a5 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                a4 = 2; a5 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "a4" && direc == 3) {
+                            if(a4 == 2 || b4 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                a4 = 2; b4 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "a4" && direc == 4) {
+                            if(a4 == 2 || a3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                a4 = 2; a3 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "a5" && direc == 3) {
+                            if(a5 == 2 || b5 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                a5 = 2; b5 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "a5" && direc == 4) {
+                            if(a5 == 2 || a4 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                a5 = 2; a4 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "a5" && direc == 2) cout << "Error, ship goes off the board";
+                    // ROW B:
+                    } else if(tile == "b1" || tile == "b2" || tile == "b3" || tile == "b4" || tile == "b5") { // validates the destroyer's position in row B
+                        if(tile == "b1" && direc == 4) cout << "Error, ship goes off the board";
+                        else if(tile == "b1" && direc == 1) {
+                            if(b1 == 2 || a1 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                b1 = 2; a1 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "b1" && direc == 2) {
+                            if(b1 == 2 || b2 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                b1 = 2; b2 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "b1" && direc == 3) {
+                            if(b1 == 2 || c1 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                b1 = 2; c1 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "b2" && direc == 1) {
+                            if(b2 == 2 || a2 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                b2 = 2; a2 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "b2" && direc == 2) {
+                            if(b2 == 2 || b3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                b2 = 2; b3 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "b2" && direc == 3) {
+                            if(b2 == 2 || c2 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                b2 = 2; c2 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "b2" && direc == 4) {
+                            if(b2 == 2 || b1 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                b2 = 2; b1 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "b3" && direc == 1) {
+                            if(b3 == 2 || a3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                b3 = 2; a3 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "b3" && direc == 2) {
+                            if(b3 == 2 || b4 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                b3 = 2; b4 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "b3" && direc == 3) {
+                            if(b3 == 2 || c3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                b3 = 2; c3 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "b3" && direc == 4) {
+                            if(b3 == 2 || b2 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                b3 = 2; b2 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "b4" && direc == 1) {
+                            if(b4 == 2 || a4 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                b4 = 2; a4 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "b4" && direc == 2) {
+                            if(b4 == 2 || b5 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                b4 = 2; b5 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "b4" && direc == 3) {
+                            if(b4 == 2 || c4 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                b4 = 2; c4 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "b4" && direc == 4) {
+                            if(b4 == 2 || b3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                b4 = 2; b3 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "b5" && direc == 1) {
+                            if(b5 == 2 || a5 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                b5 = 2; a5 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "b5" && direc == 3) {
+                            if(b5 == 2 || c5 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                b5 = 2; c5 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "b5" && direc == 4) {
+                            if(b5 == 2 || b4 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                b5 = 2; b4 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "b5" && direc == 2) cout << "Error, ship goes off the board";
+                        
+                    // ROW C:
+                    } else if(tile == "c1" || tile == "c2" || tile == "c3" || tile == "c4" || tile == "c5") { // validates the destroyer's position in row C
+                        if(tile == "c1" && direc == 4) cout << "Error, ship goes off the board";
+                        else if(tile == "c1" && direc == 1) {
+                            if(c1 == 2 || b1 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                c1 = 2; b1 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "c1" && direc == 2) {
+                            if(c1 == 2 || c2 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                c1 = 2; c2 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "c1" && direc == 3) {
+                            if(c1 == 2 || d1 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                c1 = 2; d1 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "c2" && direc == 1) {
+                            if(c2 == 2 || b2 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                c2 = 2; b2 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "c2" && direc == 2) {
+                            if(c2 == 2 || c3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                c2 = 2; c3 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "c2" && direc == 3) {
+                            if(c2 == 2 || d2 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                c2 = 2; d2 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "c2" && direc == 4) {
+                            if(c2 == 2 || c1 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                c2 = 2; c1 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "c3" && direc == 1) {
+                            if(c3 == 2 || b3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                c3 = 2; b3 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "c3" && direc == 2) {
+                            if(c3 == 2 || c4 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                c3 = 2; c4 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "c3" && direc == 3) {
+                            if(c3 == 2 || d3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                c3 = 2; d3 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "c3" && direc == 4) {
+                            if(c3 == 2 || c2 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                c3 = 2; c2 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "c4" && direc == 1) {
+                            if(c4 == 2 || b4 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                c4 = 2; b4 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "c4" && direc == 2) {
+                            if(c4 == 2 || c5 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                c4 = 2; c5 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "c4" && direc == 3) {
+                            if(c4 == 2 || d4 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                c4 = 2; d4 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "c4" && direc == 4) {
+                            if(c4 == 2 || c3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                c4 = 2; c3 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "c5" && direc == 1) {
+                            if(c5 == 2 || b5 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                c5 = 2; b5 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "c5" && direc == 3) {
+                            if(c5 == 2 || d5 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                c5 = 2; d5 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "c5" && direc == 4) {
+                            if(c5 == 2 || c4 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                c5 = 2; c4 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "c5" && direc == 2) cout << "Error, ship goes off the board";
+                        
+                    // ROW D:
+                    } else if(tile == "d1" || tile == "d2" || tile == "d3" || tile == "d4" || tile == "d5") { // validates the destroyer's position in row D
+                        if(tile == "d1" && direc == 4) cout << "Error, ship goes off the board";
+                        else if(tile == "d1" && direc == 1) {
+                            if(d1 == 2 || c1 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                d1 = 2; c1 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "d1" && direc == 2) {
+                            if(d1 == 2 || d2 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                d1 = 2; d2 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "d1" && direc == 3) {
+                            if(d1 == 2 || e1 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                d1 = 2; e1 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "d2" && direc == 1) {
+                            if(d2 == 2 || c2 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                d2 = 2; c2 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "d2" && direc == 2) {
+                            if(d2 == 2 || d3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                d2 = 2; d3 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "d2" && direc == 3) {
+                            if(d2 == 2 || e2 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                d2 = 2; e2 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "d2" && direc == 4) {
+                            if(d2 == 2 || d1 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                d2 = 2; d1 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "d3" && direc == 1) {
+                            if(d3 == 2 || c3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                d3 = 2; c3 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "d3" && direc == 2) {
+                            if(d3 == 2 || d4 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                d3 = 2; d4 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "d3" && direc == 3) {
+                            if(d3 == 2 || e3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                d3 = 2; e3 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "d3" && direc == 4) {
+                            if(d3 == 2 || d2 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                d3 = 2; d2 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "d4" && direc == 1) {
+                            if(d4 == 2 || c4 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                d4 = 2; c4 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "d4" && direc == 2) {
+                            if(d4 == 2 || d5 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                d4 = 2; d5 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "d4" && direc == 3) {
+                            if(d4 == 2 || e4 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                d4 = 2; e4 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "d4" && direc == 4) {
+                            if(d4 == 2 || d3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                d4 = 2; d3 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "d5" && direc == 1) {
+                            if(d5 == 2 || c5 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                d5 = 2; c5 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "d5" && direc == 3) {
+                            if(d5 == 2 || e5 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                d5 = 2; e5 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "d5" && direc == 4) {
+                            if(d5 == 2 || d4 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                d5 = 2; d4 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "b5" && direc == 2) cout << "Error, ship goes off the board";
+                        
+                    // ROW E:
+                    } else if(tile == "e1" || tile == "e2" || tile == "e3" || tile == "e4" || tile == "e5") { // validates the destroyer's position in row E
+                        if(direc == 3) {
+                            cout << "Error, ship goes off the board";
+                            break;
+                        }
+                        else if(tile == "e1" && direc == 4) cout << "Error, ship goes off the board";
+                        else if(tile == "e1" && direc == 1) {
+                            if(e1 == 2 || d1 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                e1 = 2; d1 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "e1" && direc == 2) {
+                            if(e1 == 2 || e2 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                e1 = 2; e2 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "e2" && direc == 1) {
+                            if(e2 == 2 || d2 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                e2 = 2; d2 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "e2" && direc == 2) {
+                            if(e2 == 2 || e3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                e2 = 2; e3 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "e2" && direc == 4) {
+                            if(e2 == 2 || e1 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                e2 = 2; e1 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "e3" && direc == 1) {
+                            if(e3 == 2 || d3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                e3 = 2; d3 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "e3" && direc == 2) {
+                            if(e3 == 2 || e4 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                e3 = 2; e4 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "e3" && direc == 4) {
+                            if(e3 == 2 || e2 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                e3 = 2; e2 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "e4" && direc == 1) {
+                            if(e4 == 2 || d4 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                e4 = 2; d4 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "e4" && direc == 2) {
+                            if(e4 == 2 || e5 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                e4 = 2; e5 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "e4" && direc == 4) {
+                            if(e4 == 2 || e3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                e4 = 2; e3 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "e5" && direc == 1) {
+                            if(e5 == 2 || d5 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                e5 = 2; d5 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "e5" && direc == 4) {
+                            if(e5 == 2 || e4 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            }
+                            else {
+                                e5 = 2; e4 = 2;
+                                dcount--;
+                            }
+                        } else if(tile == "e5" && direc == 2) cout << "Error, ship goes off the board";
+                    } else {
+                        cout << "Please input a valid board tile space";
+                    }
+                    break; // ends the case, not the loop
+                } 
+                case 'b':
+                case 'B': {
+                    // validates the  battleship's position
+                    // ROW A:
+                    if(tile == "a1" || tile == "a2" || tile == "a3" || tile == "a4" || tile == "a5") {
+                        if(direc == 1) cout << "Error, ship goes off the board";
+                        else if(tile == "a1" && direc == 4 || tile == "a2" && direc == 4) cout << "Error, ship goes off the board";
+                        else if(tile == "a1" && direc == 2) {
+                            if(a1 == 2 || a2 == 2 || a3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                a1 = 2; a2 = 2; a3 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "a1" && direc == 3) {
+                            if(a1 == 2 || b1 == 2 || c1 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                a1 = 2; b1 = 2; c1 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "a2" && direc == 2) {
+                            if(a2 == 2 || a3 == 2 || a4 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                a2 = 2; a3 = 2; a4 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "a2" && direc == 3) {
+                            if(a2 == 2 || b2 == 2 || c2 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                a2 = 2; b2 = 2; c2 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "a3" && direc == 2) {
+                            if(a3 == 2 || a4 == 2 || a5 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                a3 = 2; a4 = 2; a5 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "a3" && direc == 3) {
+                            if(a3 == 2 || b3 == 2 || c3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                a3 = 2; b3 = 2; c3 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "a3" && direc == 4) {
+                            if(a3 == 2 || a2 == 2 || a1 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                a3 = 2; a2 = 2; a1 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "a4" && direc == 3) {
+                            if(a4 == 2 || b4 == 2 || c4 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                a4 = 2; b4 = 2; c4 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "a4" && direc == 4) {
+                            if(a4 == 2 || a3 == 2 || a2 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                a4 = 2; a3 = 2; a2 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "a5" && direc == 3) {
+                            if(a5 == 2 || b5 == 2 || c5 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                a5 = 2; b5 = 2; c5 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "a5" && direc == 4) {
+                            if(a5 == 2 || a4 == 2 || a3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                a5 = 2; a4 = 2; a3 = 2;
+                                bttlcnt--;
+                            }
+                        }
+                        else if(tile == "a5" && direc == 2 || tile == "a4" && direc == 2) cout << "Error, ship goes off the board";
+                        
+                    // ROW B:
+                    } else if(tile == "b1" || tile == "b2" || tile == "b3" || tile == "b4" || tile == "b5") {
+                        if(direc == 1) cout << "Error, ship goes off the board";
+                        else if(tile == "b1" && direc == 4 || tile == "b2" && direc == 4) cout << "Error, ship goes off the board";
+                        else if(tile == "b1" && direc == 2) {
+                            if(b1 == 2 || b2 == 2 || b3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                b1 = 2; b2 = 2; b3 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "b1" && direc == 3) {
+                            if(b1 == 2 || c1 == 2 || d1 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                b1 = 2; c1 = 2; d1 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "b2" && direc == 2) {
+                            if(b2 == 2 || b3 == 2 || b4 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                b2 = 2; b3 = 2; b4 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "b2" && direc == 3) {
+                            if(b2 == 2 || c2 == 2 || d2 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                b2 = 2; c2 = 2; d2 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "b3" && direc == 2) {
+                            if(b3 == 2 || b4 == 2 || b5 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                b3 = 2; b4 = 2; b5 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "b3" && direc == 3) {
+                            if(b3 == 2 || c3 == 2 || d3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                b3 = 2; c3 = 2; d3 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "b3" && direc == 4) {
+                            if(b3 == 2 || b2 == 2 || b1 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                b3 = 2; b2 = 2; b1 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "b4" && direc == 3) {
+                            if(b4 == 2 || c4 == 2 || d4 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                d4 = 2; c4 = 2; d4 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "b4" && direc == 4) {
+                            if(b4 == 2 || b3 == 2 || b2 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                b4 = 2; b3 = 2; b2 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "b5" && direc == 3) {
+                            if(b5 == 2 || c5 == 2 || d5 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                b5 = 2; c5 = 2; d5 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "b5" && direc == 4) {
+                            if(b5 == 2 || b4 == 2 || b3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                b5 = 2; b4 = 2; b3 = 2;
+                                bttlcnt--;
+                            }
+                        }
+                        else if(tile == "b5" && direc == 2 || tile == "b4" && direc == 2) cout << "Error, ship goes off the board";
+                        
+                    // ROW C:
+                    } else if(tile == "c1" || tile == "c2" || tile == "c3" || tile == "c4" || tile == "c5") {
+                        if(tile == "c1" && direc == 4 || tile == "c2" && direc == 4) cout << "Error, ship goes off the board";
+                        else if(tile == "c1" && direc == 1) {
+                            if(c1 == 2 || b1 == 2 || a1 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                c1 = 2; b1 = 2; a1 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "c1" && direc == 2) {
+                            if(c1 == 2 || c2 == 2 || c3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                c1 = 2; c2 = 2; c3 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "c1" && direc == 3) {
+                            if(c1 == 2 || d1 == 2 || e1 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                c1 = 2; d1 = 2; e1 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "c2" && direc == 1) {
+                            if(c1 == 2 || b1 == 2 || a1 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                c1 = 2; b1 = 2; a1 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "c2" && direc == 2) {
+                            if(c1 == 2 || c2 == 2 || c3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                c1 = 2; c2 = 2; c3 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "c2" && direc == 3) {
+                            if(c1 == 2 || d1 == 2 || e1 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                c1 = 2; d1 = 2; e1 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "c3" && direc == 1) {
+                            if(c3 == 2 || b3 == 2 || a3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                c3 = 2; b3 = 2; a3 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "c3" && direc == 2) {
+                            if(c3 == 2 || c4 == 2 || c5 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                c1 = 2; c2 = 2; c3 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "c3" && direc == 3) {
+                            if(c3 == 2 || d3 == 2 || e3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                c3 = 2; d3 = 2; e3 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "c3" && direc == 4) {
+                            if(c3 == 2 || c2 == 2 || c1 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                c3 = 2; c2 = 2; c1 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "c4" && direc == 1) {
+                            if(c4 == 2 || b4 == 2 || a4 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                c4 = 2; b4 = 2; a4 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "c4" && direc == 3) {
+                            if(c4 == 2 || d4 == 2 || e4 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                c4 = 2; d4 = 2; e4 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "c4" && direc == 4) {
+                            if(c4 == 2 || c3 == 2 || c2 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                c4 = 2; c3 = 2; c2 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "c5" && direc == 1) {
+                            if(c5 == 2 || b5 == 2 || a5 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                c5 = 2; b5 = 2; a5 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "c5" && direc == 3) {
+                            if(c5 == 2 || d5 == 2 || e5 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                c4 = 2; d4 = 2; e4 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "c5" && direc == 4) {
+                            if(c5 == 2 || c4 == 2 || c3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                c5 = 2; c4 = 2; c3 = 2;
+                                bttlcnt--;
+                            }
+                        }
+                        else if(tile == "c5" && direc == 2 || tile == "c4" && direc == 2) cout << "Error, ship goes off the board";
+                    
+                    // ROW D:
+                    } else if(tile == "d1" || tile == "d2" || tile == "d3" || tile == "d4" || tile == "d5") {
+                        if(direc == 3) cout << "Error, ship goes off the board";
+                        else if(tile == "d1" && direc == 4 || tile == "d2" && direc == 4) cout << "Error, ship goes off the board";
+                        else if(tile == "d1" && direc == 1) {
+                            if(d1 == 2 || c1 == 2 || b1 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                d1 = 2; c1 = 2; b1 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "d1" && direc == 2) {
+                            if(d1 == 2 || d2 == 2 || d3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                d1 = 2; d2 = 2; d3 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "d2" && direc == 1) {
+                            if(d2 == 2 || c2 == 2 || b2 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                d2 = 2; c2 = 2; b2 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "d2" && direc == 2) {
+                            if(d2 == 2 || d3 == 2 || d4 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                d2 = 2; d3 = 2; d4 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "d3" && direc == 1) {
+                            if(d3 == 2 || c3 == 2 || b3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                d3 = 2; c3 = 2; b3 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "d3" && direc == 2) {
+                            if(d3 == 2 || d4 == 2 || d5 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                d3 = 2; d4 = 2; d5 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "d3" && direc == 4) {
+                            if(d3 == 2 || d2 == 2 || d1 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                d3 = 2; d2 = 2; d1 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "d4" && direc == 1) {
+                            if(d4 == 2 || c4 == 2 || b4 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                d4 = 2; c4 = 2; b4 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "d4" && direc == 4) {
+                            if(d4 == 2 || d3 == 2 || d2 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                d4 = 2; d3 = 2; d2 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "d5" && direc == 1) {
+                            if(d5 == 2 || c5 == 2 || b5 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                d5 = 2; c5 = 2; b5 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "d5" && direc == 4) {
+                            if(d5 == 2 || d4 == 2 || d3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                d5 = 2; d4 = 2; d3 = 2;
+                                bttlcnt--;
+                            }
+                        }
+                        else if(tile == "d5" && direc == 2 || tile == "d4" && direc == 2) cout << "Error, ship goes off the board";
+                        
+                    // ROW E:
+                    } else if(tile == "e1" || tile == "e2" || tile == "e3" || tile == "e4" || tile == "e5") {
+                        if(direc == 3) cout << "Error, ship goes off the board";
+                        else if(tile == "e1" && direc == 4 || tile == "e2" && direc == 4) cout << "Error, ship goes off the board";
+                        else if(tile == "e1" && direc == 1) {
+                            if(e1 == 2 || d1 == 2 || c1 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                e1 = 2; d1 = 2; c1 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "e1" && direc == 2) {
+                            if(e1 == 2 || e2 == 2 || e3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                e1 = 2; e2 = 2; e3 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "e2" && direc == 1) {
+                            if(e2 == 2 || d2 == 2 || c2 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                e2 = 2; d2 = 2; c2 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "e2" && direc == 2) {
+                            if(e2 == 2 || e3 == 2 || e4 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                e2 = 2; e3 = 2; e4 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "e3" && direc == 1) {
+                            if(e3 == 2 || d3 == 2 || c3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                e3 = 2; d3 = 2; c3 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "e3" && direc == 2) {
+                            if(e3 == 2 || e4 == 2 || e5 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                e3 = 2; e4 = 2; e5 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "e3" && direc == 4) {
+                            if(e3 == 2 || e2 == 2 || e1 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                e3 = 2; e2 = 2; e1 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "e4" && direc == 1) {
+                            if(e4 == 2 || d4 == 2 || c4 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                e4 = 2; d4 = 2; c4 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "e4" && direc == 4) {
+                            if(e4 == 2 || e3 == 2 || e2 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                e4 = 2; e3 = 2; e2 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "e5" && direc == 1) {
+                            if(e5 == 2 || d5 == 2 || c5 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                e5 = 2; d5 = 2; c5 = 2;
+                                bttlcnt--;
+                            }
+                        } else if(tile == "e5" && direc == 4) {
+                            if(e5 == 2 || e4 == 2 || e3 == 2) {
+                                cout << "Error, a ship already exists on that tile\n";
+                            } else {
+                                e5 = 2; e4 = 2; e3 = 2;
+                                bttlcnt--;
+                            }
+                        }
+                        
+                        else if(tile == "e5" && direc == 2 || tile == "e4" && direc == 2) cout << "Error, ship goes off the board";
+                        
+                    } else { 
+                        cout << "Please input a valid board tile space";
+                    }  
+                    break; // ends the case, not the loop
+                }
+                default: cout << "Please input a valid ship";
+            }
+        }
+        
+        cout << "\nAll ship placements set! \n\n";
+        cout << " Player's Board\t\t\t   ";
+        cout << "    1 2 3 4 5\t\t\t    1 2 3 4 5\n   - - - - - - \t\t\t   - - - - - - \n"
+                 << "A | " << a1 << " " << a2 << " " << a3 << " " << a4 << " " << a5 << " |" 
+                 << "\t\t\t" << "A | " << ca1 << " " << ca2 << " " << ca3 << " " << ca4 << " " << ca5 << " |" << endl
+                 << "B | " << b1 << " " << b2 << " " << b3 << " " << b4 << " " << b5 << " |" 
+                 << "\t\t\t" << "B | " << cb1 << " " << cb2 << " " << cb3 << " " << cb4 << " " << cb5 << " |" << endl
+                 << "C | " << c1 << " " << c2 << " " << c3 << " " << c4 << " " << c5 << " |" 
+                 << "\t\t\t" << "C | " << cc1 << " " << cc2 << " " << cc3 << " " << cc4 << " " << cc5 << " |" << endl
+                 << "D | " << d1 << " " << d2 << " " << d3 << " " << d4 << " " << d5 << " |"
+                 << "\t\t\t" << "D | " << cd1 << " " << cd2 << " " << cd3 << " " << cd4 << " " << cd5 << " |" << endl
+                 << "E | " << e1 << " " << e2 << " " << e3 << " " << e4 << " " << e5 << " |" 
+                 << "\t\t\t" << "E | " << ce1 << " " << ce2 << " " << ce3 << " " << ce4 << " " << ce5 << " |" << endl
+                 << "   - - - - - - \t\t\t   - - - - - - " << endl;
+        // GAMEPLAY BEGINS HERE 
+        
+        
+        
+        
+        cout << "\nWould you like to play again? (Y/N)\n";
+        cin >> again;
+    } while(again == 'Y' || again == 'y');
+    //Exit stage right
+    return 0;
+    
+    if(a1 == 0) cout << 0;
+    else if(a1 == 1) cout << "";
+}
+
