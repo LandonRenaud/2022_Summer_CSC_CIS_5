@@ -1,0 +1,32 @@
+/* 
+ * File:   main.cpp
+ * Author: landon Renaud
+ * Created on July 29, 2022, 11:08 PM
+ * Purpose: test the validity of using char array to ensure a user inputs a name of max length 10.
+ */
+
+#include <cstdlib>
+#include <iostream>
+#include <string>
+using namespace std;
+
+
+int main(int argc, char** argv) {
+    const int SIZE = 10;
+    char name[SIZE];
+    string namestr = "";
+    int n = 0;
+    
+    while((n < SIZE) && (cin >> name[n])) {
+        n++;
+    }
+    
+    for(int a = 0; a < SIZE; a++) {
+        namestr += name[n];
+    }
+    
+    cout << namestr;
+    return 0;
+}
+
+// forces the user to input 10 characters, not valid for the project's use case
