@@ -1,0 +1,104 @@
+/* 
+ * File:   main.cpp
+ * Author: lando
+ *
+ * Created on July 29, 2022, 3:16 PM
+ */
+
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
+#include <vector>
+using namespace std;
+
+
+int main(int argc, char** argv) {
+    // VARIABLES:
+    char clearwr;  // a variable to hold y/n, used to determine whether the player wishes to clear the win record
+    float roundav; // average rounds played
+    int roundno,
+        round,
+        gamenum,
+        ttlrnds;
+    vector<unsigned int> rounds(0);
+    
+    int dummy;
+    
+    /*
+     * Pseudo Code:
+     * create output file stream
+     * create input file stream
+     * 
+     * if: the file has no data, write "0 0", close file
+     * 
+     * open file for output: store file contents into variables:
+     * variable 1 = number of games won
+     * variable 2 = total games played
+     * 
+     * if: the player has won the current game, add 1 to variable 1
+     * add 1 to variable 2 regardless od whether the player won
+     * 
+     * open file for storage
+     * store contents of variable 1
+     * input a space " "
+     * store contents of variable 2
+     * 
+     * 
+     * Ask the player if they want to delete the win record
+     * if: the player inputs y or Y
+     * open the file for storage
+     * rewrite contents to ""
+     * output: the win record was deleted
+     * else:
+     * output: the win record was not deleted
+     * 
+     */
+    // WIN RATE CALCULATION HERE
+    // opens input and output objects
+    
+    ofstream winsIN;
+    ifstream winsOUT("Winrecord.txt");
+    
+    ofstream rndsIN;
+    ifstream rndsOUT("Roundrecord.txt");
+    
+    // if program does not detect data in the file (ie: if the file has just been created)
+    if((!(winsOUT >> dummy >> gamenum)) || (!(rndsOUT >> round))) {
+        winsOUT.close(); // closes input stream
+        rndsOUT.close();
+        winsIN.open("Winrecord.txt"); // opens file in output stream
+        winsIN << 0 << " " << gamenum; // outputs the game number and win count into the file (both will be 0 at this time)
+        winsIN.close();
+        rndsIN.open("Roundrecord.txt");
+        rndsIN << 0;
+    }
+
+    // reads from file
+    winsOUT.open("Winrecord.txt"); // stores the current game number and win count into the wincnt and gamenum variables
+    winsOUT >> dummy >> gamenum;
+    winsOUT.close();
+    
+    rndsOUT.open("Roundrecord.txt");
+    for()
+    
+    for(int n = 0; n < rounds.size(); n++) {
+        ttlrnds += rounds[n];
+    }
+   
+    roundav = (static_cast<float>(ttlrnds))/gamenum; // uses static cast to force floating point division
+    cout << fixed << setprecision(2) << "\nYour Win Rate is " << roundav << "%\n";
+
+    // writes new values back to file
+    rndsIN.open("Roundrecord.txt");
+
+    // System to wipe the win record, if the player choses so, the win record will be reset
+    cin >> clearwr;
+    if(clearwr == 'Y' || clearwr == 'y') {
+        winsIN.open("Roundrecord.txt");
+        winsIN << ""; // rewrites the file as nothing ("")
+        winsIN.close();
+        cout << "The Win Record Has Been Cleared\n";
+    } else cout << "The Win Record Was Not Cleared\n";
+    return 0;
+}
+
