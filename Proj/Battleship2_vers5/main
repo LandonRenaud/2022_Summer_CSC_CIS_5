@@ -1,0 +1,1524 @@
+/* 
+ * File:   main.cpp
+ * Author: Landon Renaud
+ * Created on July 30, 2022, 3:05 PM
+ * Purpose: verision 5: CPU A.I. Adjustments (search for a hit using a searching algorithm)
+ */
+
+//System Libraries
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <ctime>
+#include <cmath>
+#include <cstdlib>
+#include <iomanip>
+using namespace std;
+
+//User Libraries
+
+//Global Constants
+//Mathematical/Physics/Conversions, Higher dimensioned arrays
+const unsigned short COLS = 11;
+
+// ******************* //
+// FUNCTION PROTOTYPES //
+// ******************* //
+
+// prints the menu image
+void prntmenu();
+// prints instructions
+void prntInstruc();
+
+// SETUP FUNCTIONS
+int getDiff();
+
+void initboard(unsigned short [][COLS], const unsigned short);
+void initIsHit(bool [][COLS], const unsigned short);
+void getPshipPos(unsigned short [][COLS], const unsigned short);
+void getCPUpos(unsigned short [][COLS], const unsigned short);
+
+// function to verify ship placements, error code 1: ship goes off the board, error code 2: ship overlaps another ship, error code 3: invalid direction
+int isSPgood(const unsigned short [][COLS], const unsigned short, char, unsigned short, unsigned short, const unsigned short, int&, int&); 
+void prntboard(short unsigned [][COLS], const unsigned short);
+
+// Gameplay functions
+void prntboard(short unsigned [][COLS], short unsigned [][COLS], const unsigned short);
+void playerATK(unsigned short [][COLS], unsigned short&);
+
+// CPU A.I. Functions
+void CPUatkE(unsigned short [][COLS], unsigned short&);
+void CPUatkN(unsigned short [][COLS], unsigned short&, bool [][COLS]);
+void CPUatkH(unsigned short [][COLS], const int, unsigned short&, bool [][COLS], int, bool&, int&, int&, int&);
+void hitsrch(unsigned short [][COLS], int&, int&, const unsigned short);
+
+// detect game over
+bool isgameovr(unsigned short, unsigned short, bool&, unsigned short [][COLS], unsigned short [][COLS], const unsigned short); //checks ships remaining, returns false if game is still going
+
+// Records Functions
+void getPname(const int, unsigned int);
+void getLeader(const int);
+void prntLeader(string [], int [], const int = 10);
+void entrySort(string [], int [], int);
+void getWR(unsigned, unsigned, bool);
+int getWR();
+void storeRoundNum(vector<unsigned int>, unsigned int);
+int getRoundAVE(vector<unsigned int>);
+void recordWipe();
+
+
+// ********************** //
+// EXCUTUTION BEGINS HERE //
+// ********************** //
+
+int main(int argc, char** argv) {
+    //Initialize the Random Number Seed
+    srand(static_cast<unsigned short>(time(0)));
+    
+    //Declare Variables lines 32-70
+    char choice;
+    int diff = 0; // difficulty variable, 1 = easy, 2 = normal, 3 = hard
+    const unsigned short ROWS = 11;
+    unsigned short cpuatkn;     // a number to be randomly generated to determine where the CPU will attack 
+    
+    // variables for record keeping
+    unsigned int wincnt = 0,    // tracks the number of player wins for the purpose of win rate calculation
+                 gamenum = 0,   // tracks the current game number for the purpose of win rate calculation
+                 roundno = 0;   // a variable to track the number of rounds, which will be displayed at the end of the game
+    vector<unsigned int> rounds(0);
+    string recCont; // a dummy string to be used to pause the code while the user looks at the records page
+    //string plyrN[], plyrR[];  // parallel arrays for 
+    
+    // game state variables
+    char again;
+    bool gamest = true; // game state variable, once game state is false the game will end, 
+                        // and the player will be asked if they want to play again
+    bool playerW,       // a variable for storing win rate, if the player wins, it equals 1, if the CPU wins, it equals 0
+         exit = false;  // a variable to determine whether the program should be stopped or not
+    
+    // player board variables
+    unsigned short pBoard[ROWS][COLS],
+                   hitnumP = 0; // tracks the number of hits made by the player, if the number reaches 7, the player wins
+    
+    // CPU board variables
+    unsigned short cBoard[ROWS][COLS],
+                   hitnumC = 0; // tracks the number of hits made by the CPU, if the number reaches 7, the CPU wins
+    
+    // CPU ai variables, if true, the cpu will never attack that space for the rest of the game, for normal and hard difficulty
+    bool isHit[ROWS][COLS],
+         prevhit;
+    int count, 
+            x, 
+            y;
+    /* 
+     * VALUE KEY FOR PLAYER AND COMPUTER BOARD VARIABLES
+     * EX: a1
+     * a1 = 0, + clear space
+     * a1 = 1, O missed shot
+     * a1 = 2, # Aircraft Carrier ship tile
+     * a1 = 3, # Battleship ship tile
+     * a1 = 4, # Cruiser ship tile
+     * a1 = 5, # Destroyer ship tile
+     * a1 = 6, X hit
+     */
+    
+    // LOOP STARTS HERE: when this loop ends, the program is terminated
+    do{
+        prntmenu();
+        hitnumP = 0;
+        hitnumC = 0;
+        prevhit = false;
+        count = 5;
+        roundno = 1;
+        
+        cout << " Enter Choice: ";
+        cin >> choice;
+        
+        switch(choice) {
+            case '1': {
+                do{
+                    // initiallize all board tile values to 0
+                    initboard(pBoard, ROWS); // for player board
+                    initboard(cBoard, ROWS); // for CPU board
+                    initIsHit(isHit, ROWS);  // resets CPU A.I. array
+                    cout  << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+                    
+                    do {
+                        diff = getDiff();
+                    } while(diff == 0);
+                    
+                    // setup functions
+                    getPshipPos(pBoard, ROWS);
+                    getCPUpos(cBoard, ROWS);
+
+                    cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+                         << "\nAll ship placements set! \n\n\t\t\t     -=-= GAME  START =-=-\n";
+
+                    // GAMEPLAY CYCLE IN THIS LOOP
+                    do {
+                        prntboard(pBoard, cBoard, ROWS);
+                        playerATK(cBoard, hitnumP);
+                        
+                        switch(diff) {
+                            case 1: {
+                                CPUatkE(pBoard, hitnumC);
+                                break;
+                            }
+                            case 2: {
+                                CPUatkN(pBoard, hitnumC, isHit);
+                                break;
+                            }
+                            case 3: {
+                                //cout << "x: " << x << endl << "y: " << y << endl;
+                                CPUatkH(pBoard, ROWS, hitnumC, isHit, roundno, prevhit, x, y, count);
+                                cout << "x: " << x << endl << "y: " << y << endl;
+                                //if(isHit[y][x] == false) cout << "Not working \n";
+                                
+                                break;
+                            }
+                        }
+                        roundno++;
+                    } while(!isgameovr(hitnumP, hitnumC, playerW, pBoard, cBoard, ROWS));
+                    
+                    storeRoundNum(rounds, roundno);
+                    cout << "\nThe game ended in " << roundno << " rounds.\n";
+                    
+                    // display winrate
+                    getWR(wincnt, gamenum, playerW);
+                    
+                    if(playerW) {
+                        getPname(100, roundno);
+                    }
+                    
+                    // System to determine if the player will play again
+                    cout << "\nWould you like to play BATTLESHIP again? (Y/N)\n";
+                    cin >> again;
+                } while(again == 'Y' || again == 'y');
+                
+                cout << "\n\n\n\n\n\n\n";
+                
+                break;
+            } 
+            case '2': {
+                cout << endl;
+                prntInstruc();
+                break;
+            }
+            case '3': {
+                
+                
+                cout  << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+                getLeader(100);
+                cout << "\n\n";
+                getWR();
+                //cout << "working";
+                getRoundAVE(rounds);
+                cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+                cout << " Enter any value to continue: ";
+                cin >> recCont;
+                cout << endl;
+                recordWipe();
+                
+                break;
+            }
+            case '4': {
+                cout << "\n Good Bye!";
+                exit = true;
+                break;
+            }
+            default: cout << "\nPlease input a valid option\n\n";
+        }
+        
+    } while(!exit);
+    
+
+    //Exit stage right
+    return 0;
+}
+
+// *********************** //
+//                         //
+//  FUNCTION DECLARATIONS  //
+//                         //
+// *********************** //
+
+void prntmenu() {
+    fstream menu;
+    menu.open("Menu.txt");
+    string mnuline;
+    while(getline(menu, mnuline)) {
+        cout << mnuline << endl;
+    }
+    
+}
+
+
+
+void prntInstruc() {
+    fstream instruc;
+    instruc.open("Instructions.txt");
+    string iline;
+    string dummy;
+    while(getline(instruc, iline)) {
+        cout << iline << endl;
+    }
+    cout << " Enter any value to Return to menu: ";
+    cin >> dummy;
+    cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+}
+
+
+void initboard(unsigned short board[][COLS], const unsigned short ROWS) {
+    for(int n = 0; n < ROWS; n++) {
+        for(int a = 0; a < COLS; a++) {
+            board[n][a] = 0;
+        }
+    }
+}
+
+void initIsHit(bool isHit[][COLS], const unsigned short ROWS) {
+    for(int n = 0; n < ROWS; n++) {
+        for(int a = 0; a < COLS; a++) {
+            isHit[n][a] = false;
+        }
+    }
+}
+
+int getDiff() {
+    int diff;
+    cout << " Select a Difficulty: \n"
+         << " 1: Easy Mode\n 2: Normal Mode\n 3: Hard Mode"
+         << "\n\n Difficulty: ";
+    cin >> diff;
+    if(diff != 1 && diff != 2 && diff != 3) {
+        cout << " Error: please input a valid difficulty level\n\n";
+        return 0;
+    }
+    return diff;
+}
+
+
+
+int isSPgood(const unsigned short board[][COLS], const unsigned short ROWS, char xcoord, unsigned short ycoord, unsigned short direc, const unsigned short LENGTH, int& x, int& y) {
+    unsigned short ecode;
+    // converts tile to a valid input for the 2d array
+    if(xcoord < 97 || xcoord > 107 || ycoord > 11 || ycoord < 1) {
+        ecode = 4; // invalid coord error
+        return ecode;
+    } else {
+        x = static_cast<int>(xcoord)-97; // subtract one extra for correction (since arrays go from 0 to SIZE-1)
+        y = ycoord-1; // subtract one to convert user input to correct array index (since arrays go from 0 to SIZE-1)A
+    }
+    
+    //cout << "x: " << x << endl << "y: " << y << endl;
+    if(direc == 1) {
+        for(int n = 0; n < LENGTH; n++) {
+            //cout << y-(n-1)<< endl;
+            if(board[y-n][x] == 0) ecode = 0; // no error
+            if((y-n) < 0) ecode = 1; // off board error
+            if(board[y-n][x] == 2 || 
+               board[y-n][x] == 3 || 
+               board[y-n][x] == 4 || 
+               board[y-n][x] == 5) ecode = 2;   // ship overlap error
+        }
+    } else if(direc == 2) {
+        for(int n = 1; n <= LENGTH; n++) {
+            if(board[y][x+n] == 0) ecode = 0; // no error
+            if((x+n) > COLS) ecode = 1; // off board error
+            if(board[y][x] == 2 || 
+               board[y][x] == 3 || 
+               board[y][x] == 4 || 
+               board[y][x] == 5) ecode = 2;   // ship overlap error
+        }
+    } else if(direc == 3) {
+        for(int n = 1; n <= LENGTH; n++) {
+            if(board[y+n][x] == 0) ecode = 0; // no error
+            if((y+n) > ROWS) ecode = 1; // off board error
+            if(board[y+n][x] == 2 || 
+               board[y+n][x] == 3 || 
+               board[y+n][x] == 4 || 
+               board[y+n][x] == 5) ecode = 2;   // ship overlap error
+        }
+    } else if(direc == 4) {
+        for(int n = 0; n < LENGTH; n++) {
+            if(board[y][x-n] == 0) ecode = 0; // no error
+            if((x-n) < 0) ecode = 1; // off board error
+            if(board[y][x-n] == 2 || 
+               board[y][x-n] == 3 || 
+               board[y][x-n] == 4 || 
+               board[y][x-n] == 5) ecode = 2;   // ship overlap error
+        }
+    } else ecode = 3; // invalid direction error
+    return ecode;
+}
+
+
+
+
+
+
+
+/* 
+ * VALUE KEY FOR PLAYER AND COMPUTER BOARD VARIABLES
+ * EX: a1
+ * a1 = 0, + clear space
+ * a1 = 1, O missed shot
+ * a1 = 2, # Aircraft Carrier ship tile
+ * a1 = 3, # Battleship ship tile
+ * a1 = 4, # Cruiser ship tile
+ * a1 = 5, # Destroyer ship tile
+ * a1 = 6, X hit
+ */
+
+void getPshipPos(unsigned short pBoard[][COLS], const unsigned short ROWS) {
+    // Variables:
+    int count;
+    char xcoord;
+    unsigned short direc;
+    char schoice;
+    unsigned short dCnt = 3,    // destroyer count
+                   bCnt = 1,    // battleship count
+                   cCnt = 3,    // cruiser count
+                   aCnt = 2,    // aircraft carrier count
+                   ycoord,
+                   ecode;       // error code variable, equals 0 of no error
+    int x, y;
+    const unsigned short DLENGTH = 2, // destroyer length
+                         BLENGTH = 5, // battleship length
+                         CLENGTH = 3, // cruiser length
+                         ALENGTH = 4; // aircraft carrier length
+    unsigned short length; // a variable to be passed to the ship position checking function, describes the length of a ship for validation purposes
+    
+    cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+         << "Place your ships on the board: ";
+    cout << "\nInput ship, then coordinate, then direction:" 
+         << "\n     Example input: B a1 3\n";
+    
+    while(dCnt > 0 || bCnt > 0 || cCnt > 0 || aCnt > 0) {
+        if(count > 100) exit(1);
+        
+        cout << "\n\nAir Craft Carriers (4 Long): " << aCnt << endl
+             << "Battleships (5 Long):        " << bCnt << endl
+             << "Cruisers (3 Long):           " << cCnt << endl
+             << "Destroyers (2 Long):         " << dCnt << endl << endl;
+        prntboard(pBoard, ROWS);
+        // SHIP PLACEMENT BEGINS HERE:
+        cout << "\nPlace ship: \n";
+        
+        cin >> schoice >> xcoord >> ycoord >> direc;
+        //cout << xcoord << " " << ycoord;
+        /*
+         * Pseudo code:
+         * if: ship goes off board, output "error";
+         * else if: ship already exists where new ship will be, output "error";
+         * else: place ship in spot;
+         */
+        switch(schoice) {
+            case 'd':
+            case 'D': {
+                if(dCnt == 0) cout << "Error, you have no destroyers left to place.";
+                else {
+                    length = DLENGTH;
+                    ecode = isSPgood(pBoard, ROWS, xcoord, ycoord, direc, length, x, y);
+                    xcoord = x;
+                    ycoord = y;
+                    //cout << "awerfaefref " << ecode << "  awefawefawefr";
+                    if(ecode == 1) {
+                        cout << "Error: ship goes off the board";
+                    } else if(ecode == 2) {
+                        cout << "Error: ship overlaps a preexisting ship";
+                    } else if(ecode == 3) {
+                        cout << "Error: invalid direction";
+                    } else if(ecode == 4) {
+                        cout << "Error, please input a valid coordinate";
+                    } else { // if there is an error, gives respective error message, else sets the ship in the coords provided
+                        if(direc == 1) {
+                            for(int n = 0; n < length; n++) {
+                                pBoard[ycoord-n][xcoord] = 5; 
+                            }
+                        } else if(direc == 2) {
+                            for(int n = 0; n < length; n++) {
+                                pBoard[ycoord][xcoord+n] = 5; 
+                            }
+                        } else if(direc == 3) {
+                            for(int n = 0; n < length; n++) {
+                                pBoard[ycoord+n][xcoord] = 5; 
+                            }
+                        } else if(direc == 4) {
+                            for(int n = 0; n < length; n++) {
+                                pBoard[ycoord][xcoord-n] = 5; 
+                            }
+                        }
+                        dCnt--;
+                    }
+                    
+                }
+                break;
+            }
+            case 'b':
+            case 'B': {
+                if(bCnt == 0) cout << "Error, you have no battleships left to place.";
+                else {
+                    length = BLENGTH;
+                    ecode = isSPgood(pBoard, ROWS, xcoord, ycoord, direc, length, x, y);
+                    xcoord = x;
+                    ycoord = y;
+                    //cout << "awerfaefref " << ecode << "  awefawefawefr";
+                    if(ecode == 1) {
+                        cout << "Error: ship goes off the board";
+                    } else if(ecode == 2) {
+                        cout << "Error: ship overlaps a preexisting ship";
+                    } else if(ecode == 3) {
+                        cout << "Error: invalid direction";
+                    } else if(ecode == 4) {
+                        cout << "Error, please input a valid coordinate";
+                    } else { // if there is an error, gives respective error message, else sets the ship in the coords provided
+                        if(direc == 1) {
+                            for(int n = 0; n < length; n++) {
+                                pBoard[ycoord-n][xcoord] = 3; 
+                            }
+                        } else if(direc == 2) {
+                            for(int n = 0; n < length; n++) {
+                                pBoard[ycoord][xcoord+n] = 3; 
+                            }
+                        } else if(direc == 3) {
+                            for(int n = 0; n < length; n++) {
+                                pBoard[ycoord+n][xcoord] = 3; 
+                            }
+                        } else if(direc == 4) {
+                            for(int n = 0; n < length; n++) {
+                                pBoard[ycoord][xcoord-n] = 3; 
+                            }
+                        }
+                        bCnt--;
+                    }
+                }
+                break;
+            }
+            case 'c':
+            case 'C': {
+                if(cCnt == 0) cout << "Error, you have no cruisers left to place.";
+                else {
+                    length = CLENGTH;
+                    ecode = isSPgood(pBoard, ROWS, xcoord, ycoord, direc, length, x ,y);
+                    xcoord = x;
+                    ycoord = y;
+                    
+                    if(ecode == 1) {
+                        cout << "Error: ship goes off the board";
+                    } else if(ecode == 2) {
+                        cout << "Error: ship overlaps a preexisting ship";
+                    } else if(ecode == 3) {
+                        cout << "Error: invalid direction";
+                    } else if(ecode == 4) {
+                        cout << "Error, please input a valid coordinate";
+                    } else { // if there is an error, gives respective error message, else sets the ship in the coords provided
+                        if(direc == 1) {
+                            for(int n = 0; n < length; n++) {
+                                pBoard[ycoord-n][xcoord] = 4; 
+                            }
+                        } else if(direc == 2) {
+                            for(int n = 0; n < length; n++) {
+                                pBoard[ycoord][xcoord+n] = 4; 
+                            }
+                        } else if(direc == 3) {
+                            for(int n = 0; n < length; n++) {
+                                pBoard[ycoord+n][xcoord] = 4; 
+                            }
+                        } else if(direc == 4) {
+                            for(int n = 0; n < length; n++) {
+                                pBoard[ycoord][xcoord-n] = 4; 
+                            }
+                        }
+                        cCnt--;
+                    }
+                }
+                break;
+            }
+            case 'a':
+            case 'A': {
+                if(aCnt == 0) cout << "Error, you have no aircraft carriers left to place.";
+                else {
+                    length = ALENGTH;
+                    ecode = isSPgood(pBoard, ROWS, xcoord, ycoord, direc, length, x, y);
+                    xcoord = x;
+                    ycoord = y;
+                    
+                    if(ecode == 1) {
+                        cout << "Error: ship goes off the board";
+                    } else if(ecode == 2) {
+                        cout << "Error: ship overlaps a preexisting ship";
+                    } else if(ecode == 3) {
+                        cout << "Error: invalid direction";
+                    } else if(ecode == 4) {
+                        cout << "Error, please input a valid coordinate";
+                    } else { // if there is an error, gives respective error message, else sets the ship in the coords provided
+                        if(direc == 1) {
+                            for(int n = 0; n < length; n++) {
+                                pBoard[ycoord-n][xcoord] = 2; 
+                            }
+                        } else if(direc == 2) {
+                            for(int n = 0; n < length; n++) {
+                                pBoard[ycoord][xcoord+n] = 2; 
+                            }
+                        } else if(direc == 3) {
+                            for(int n = 0; n < length; n++) {
+                                pBoard[ycoord+n][xcoord] = 2; 
+                            }
+                        } else if(direc == 4) {
+                            for(int n = 0; n < length; n++) {
+                                pBoard[ycoord][xcoord-n] = 2; 
+                            }
+                        }
+                        aCnt--;
+                    }
+                }
+                break;
+            }
+            default: cout << "please input a valid ship.";
+        }
+        
+        count++;
+    }
+}
+
+
+void getCPUpos(unsigned short cBoard[][COLS], const unsigned short ROWS) {
+    // Variables:
+    char xcoord;
+    unsigned short direc;
+    unsigned short schoice;
+    unsigned short dCnt = 4,    // destroyer count
+                   bCnt = 2,    // battleship count
+                   cCnt = 3,    // cruiser count
+                   aCnt = 2,    // aircraft carrier count
+                   ycoord,
+                   ecode;       // error code variable, equals 0 of no error
+    int x, y;
+    const unsigned short DLENGTH = 2, // destroyer length
+                         BLENGTH = 5, // battleship length
+                         CLENGTH = 3, // cruiser length
+                         ALENGTH = 4; // aircraft carrier length
+    unsigned short length; // a variable to be passed to the ship position checking function, describes the length of a ship for validation purposes
+    
+    while(dCnt > 0 || bCnt > 0 || cCnt > 0 || aCnt > 0) {
+        //cout << "working\n";
+        schoice = (rand()%4)+2;
+        direc = (rand()%4)+1;
+        xcoord = static_cast<char>((rand()%11)+97);
+        ycoord = (rand()%11)+1;
+        
+        switch(schoice) {
+            case 5: { // destroyer
+                if(dCnt != 0) {
+                    length = DLENGTH;
+                    ecode = isSPgood(cBoard, ROWS, xcoord, ycoord, direc, length, x, y);
+                    //cout << ecode << endl;
+                    xcoord = x;
+                    ycoord = y;
+                    //cout << "awerfaefref " << ecode << "  awefawefawefr";
+                    if(ecode == 0) { // if there is an error, don't output a message, but restart the loop, until a valid position is found
+                        if(direc == 1) {
+                            for(int n = 0; n < length; n++) {
+                                cBoard[ycoord-n][xcoord] = 5; 
+                            }
+                        } else if(direc == 2) {
+                            for(int n = 0; n < length; n++) {
+                                cBoard[ycoord][xcoord+n] = 5; 
+                            }
+                        } else if(direc == 3) {
+                            for(int n = 0; n < length; n++) {
+                                cBoard[ycoord+n][xcoord] = 5; 
+                            }
+                        } else if(direc == 4) {
+                            for(int n = 0; n < length; n++) {
+                                cBoard[ycoord][xcoord-n] = 5; 
+                            }
+                        }
+                        dCnt--;
+                    }
+                    
+                }
+                break;
+            }
+            case 3: { // battleship
+                if(bCnt != 0) {
+                    length = BLENGTH;
+                    ecode = isSPgood(cBoard, ROWS, xcoord, ycoord, direc, length, x, y);
+                    //cout << ecode << endl;
+                    xcoord = x;
+                    ycoord = y;
+                    //cout << "awerfaefref " << ecode << "  awefawefawefr";
+                    if(ecode == 0) { // if there is an error, don't output a message, but restart the loop, until a valid position is found
+                        if(direc == 1) {
+                            for(int n = 0; n < length; n++) {
+                                cBoard[ycoord-n][xcoord] = 3; 
+                            }
+                        } else if(direc == 2) {
+                            for(int n = 0; n < length; n++) {
+                                cBoard[ycoord][xcoord+n] = 3; 
+                            }
+                        } else if(direc == 3) {
+                            for(int n = 0; n < length; n++) {
+                                cBoard[ycoord+n][xcoord] = 3; 
+                            }
+                        } else if(direc == 4) {
+                            for(int n = 0; n < length; n++) {
+                                cBoard[ycoord][xcoord-n] = 3; 
+                            }
+                        }
+                        bCnt--;
+                    }
+                }
+                break;
+            }
+            case 4: { // cruiser
+                if(cCnt != 0) {
+                    length = CLENGTH;
+                    ecode = isSPgood(cBoard, ROWS, xcoord, ycoord, direc, length, x ,y);
+                    //cout << ecode << endl;
+                    xcoord = x;
+                    ycoord = y;
+                    
+                    if(ecode == 0) { // if there is an error, don't output a message, but restart the loop, until a valid position is found
+                        if(direc == 1) {
+                            for(int n = 0; n < length; n++) {
+                                cBoard[ycoord-n][xcoord] = 4; 
+                            }
+                        } else if(direc == 2) {
+                            for(int n = 0; n < length; n++) {
+                                cBoard[ycoord][xcoord+n] = 4; 
+                            }
+                        } else if(direc == 3) {
+                            for(int n = 0; n < length; n++) {
+                                cBoard[ycoord+n][xcoord] = 4; 
+                            }
+                        } else if(direc == 4) {
+                            for(int n = 0; n < length; n++) {
+                                cBoard[ycoord][xcoord-n] = 4; 
+                            }
+                        }
+                        cCnt--;
+                    }
+                }
+                break;
+            }
+            case 2: { // aircraft carrier
+                if(aCnt != 0) {
+                    length = ALENGTH;
+                    ecode = isSPgood(cBoard, ROWS, xcoord, ycoord, direc, length, x, y);
+                    // << ecode << endl;
+                    xcoord = x;
+                    ycoord = y;
+                    
+                    if(ecode == 0) { // if there is an error, don't output a message, but restart the loop, until a valid position is found
+                        if(direc == 1) {
+                            for(int n = 0; n < length; n++) {
+                                cBoard[ycoord-n][xcoord] = 2; 
+                            }
+                        } else if(direc == 2) {
+                            for(int n = 0; n < length; n++) {
+                                cBoard[ycoord][xcoord+n] = 2; 
+                            }
+                        } else if(direc == 3) {
+                            for(int n = 0; n < length; n++) {
+                                cBoard[ycoord+n][xcoord] = 2; 
+                            }
+                        } else if(direc == 4) {
+                            for(int n = 0; n < length; n++) {
+                                cBoard[ycoord][xcoord-n] = 2; 
+                            }
+                        }
+                        aCnt--;
+                    }
+                }
+                break;
+            }
+        }
+    }
+}
+
+
+
+// only prints the player's board
+void prntboard(unsigned short pBoard[][COLS], const unsigned short ROWS) {
+    char tile; // to be used with ascii values to print certain characters to make the board less confusing compared to
+               // the board from the versions of battleship in project 1
+    
+    cout << "\t      A B C D E F G H I J K\n\t     - - - - - - - - - - - -\n";
+    for(int n = 0; n < ROWS; n++) {
+        cout << "\t" << setw(3) << n+1 << " |";
+        for(int a = 0; a < COLS; a++) {
+            if(pBoard[n][a] == 1) {
+                tile = 'O';
+            } else if(pBoard[n][a] == 2 || pBoard[n][a] == 3 || pBoard[n][a] == 4 || pBoard[n][a] == 5) {
+                tile = '#';
+            } else if(pBoard[n][a] == 6) {
+                tile = 'X';
+            } else tile = '+';
+            cout << " " << tile;
+        }
+        cout << " |\n";
+    }
+    cout << "\t     - - - - - - - - - - - -\n";
+}
+
+
+
+
+
+
+
+// prints both game boards
+void prntboard(unsigned short pBoard[][COLS], unsigned short cBoard[][COLS], const unsigned short ROWS) {
+    char ptile,
+         ctile;   
+    
+    cout << "\n\n      A B C D E F G H I J K\t\t\t      A B C D E F G H I J K\n"
+         << "     - - - - - - - - - - - -\t\t\t     - - - - - - - - - - - -\n";
+    for(int n = 0; n < ROWS; n++) {
+        cout << setw(3) << n+1 << " |";
+        for(int a = 0; a < COLS; a++) {
+            if(pBoard[n][a] == 1) {
+                ptile = 'O';
+            } else if(pBoard[n][a] == 2 || pBoard[n][a] == 3 || pBoard[n][a] == 4 || pBoard[n][a] == 5) {
+                ptile = '#';
+            } else if(pBoard[n][a] == 6) {
+                ptile = 'X';
+            } else ptile = '+';
+            cout << " " << ptile;
+        }
+        cout << " |\t\t\t";
+        cout << setw(3) << n+1 << " |";
+        for(int a = 0; a < COLS; a++) {
+            if(cBoard[n][a] == 1) {
+                ctile = 'O';
+            } else if(cBoard[n][a] == 2 || cBoard[n][a] == 3 || cBoard[n][a] == 4 || cBoard[n][a] == 5) {
+                ctile = '+';
+            } else if(cBoard[n][a] == 6) {
+                ctile = 'X';
+            } else ctile = '+';
+            cout << " " << ctile;
+        }
+        cout << " |\n";
+    }
+    cout << "     - - - - - - - - - - - -\t\t\t     - - - - - - - - - - - -\n";
+}
+
+
+void playerATK(unsigned short cBoard[][COLS], unsigned short& hitnumP) {
+    char xcoord;
+    unsigned short ycoord;
+    int x, y;
+    string dummy;
+    cout << "Input Coordinates for an Attack (Ex: a1): ";
+    cin >> xcoord >> ycoord;
+    
+    x = static_cast<int>(xcoord)-97; // subtract one extra for correction (since arrays go from 0 to SIZE-1)
+    y = ycoord-1; // subtract one to convert user input to correct array index (since arrays go from 0 to SIZE-1)
+    
+    if(x < 0 || x > 11 || y < 0 || y > 11) {
+        cout << "Error: Please input a Valid Attack Coordinate";
+    } else {
+        if(cBoard[y][x] == 0) {
+            cBoard[y][x] = 1;
+            cout << "Miss!";
+        } else if(cBoard[y][x] == 2 || cBoard[y][x] == 3 ||
+                cBoard[y][x] == 4 || cBoard[y][x] == 5) {
+            cBoard[y][x] = 6;
+            hitnumP++;
+            cout << "Hit!";
+        }
+    }
+}
+
+// the A.I. randomly guesses coordinates
+void CPUatkE(unsigned short pBoard[][COLS], unsigned short& hitnumC) {
+    unsigned short x = (rand()%11),
+                   y = (rand()%11);
+    cout << "\n\nThe CPU attacked " << static_cast<char>(x+97) << y+1 <<"!\n";
+    
+    if(pBoard[y][x] == 0) {
+        pBoard[y][x] = 1;
+        cout << "Miss!";
+    } else if(pBoard[y][x] == 2 || pBoard[y][x] == 3 ||
+            pBoard[y][x] == 4 || pBoard[y][x] == 5) {
+        pBoard[y][x] = 6;
+        cout << "Hit!";
+        hitnumC++;
+    }
+}
+
+// the A.I. randomly guesses coordinates, and marks them, so that coordinate will not be guessed again
+void CPUatkN(unsigned short pBoard[][COLS], unsigned short& hitnumC, bool isHit[][COLS]) {
+    bool found = false;
+    do {
+        unsigned short x = (rand()%11),
+                       y = (rand()%11);
+        //cout << "working\n";
+        //cout << "x: " << x << endl << "y: " << y << endl;
+        if(isHit[y][x] == false) {
+            cout << "\n\nThe CPU attacked " << static_cast<char>(x+97) << y+1 <<"!\n";
+            if(pBoard[y][x] == 0) {
+                pBoard[y][x] = 1;
+                cout << "Miss!";
+            } else if(pBoard[y][x] == 2 || pBoard[y][x] == 3 ||
+                    pBoard[y][x] == 4 || pBoard[y][x] == 5) {
+                pBoard[y][x] = 6;
+                cout << "Hit!";
+                hitnumC++;
+            }
+            isHit[y][x] = true;
+            found = true;
+        }
+    } while(!found);
+}
+
+// the A.I. will randomly guess a coordinate until it scores a hit, then it will check the surrounding coordinates, if it finds another hit, it will
+// continue to attack in that direction
+void CPUatkH(unsigned short pBoard[][COLS], const int ROWS, unsigned short& hitnumC, bool isHit[][COLS], int roundno, bool& prevhit, int& prevx, int& prevy, int& count) {
+    int x = prevx,
+        y = prevy;
+    bool found = false;
+    
+    do {
+       
+        if(prevhit || count < 5) {
+            //cout << "direction: " << count << endl;
+            //cout << "working\n";
+            switch(count) {
+                case 1: {
+                    y--;
+                    //cout << "x: " << x << endl << "y: " << y << endl;
+                    
+                    if(isHit[y][x] == false) {
+                        if(y > 0) {
+                            cout << "\n\nThe CPU attacked " << static_cast<char>(x+97) << y+1 <<"!\n";
+                            
+                                if(pBoard[y][x] == 0) {
+                                    pBoard[y][x] = 1;
+                                    cout << "Miss!";
+                                    count++;
+                                    y++;
+
+                                } else if(pBoard[y][x] == 2 || pBoard[y][x] == 3 ||
+                                          pBoard[y][x] == 4 || pBoard[y][x] == 5) {
+                                    pBoard[y][x] = 6;
+                                    cout << "Hit!";
+                                    hitnumC++;
+                                    prevhit = true;
+                                }
+                                found = true;
+                            
+
+                        } else if(y == 0) {
+                            cout << "\n\nThe CPU attacked " << static_cast<char>(x+97) << y+1 <<"!\n";
+                            if(pBoard[y][x] == 0) {
+                                pBoard[y][x] = 1;
+                                cout << "Miss!";
+
+                            } else if(pBoard[y][x] == 2 || pBoard[y][x] == 3 ||
+                                      pBoard[y][x] == 4 || pBoard[y][x] == 5) {
+                                pBoard[y][x] = 6;
+                                cout << "Hit!";
+                                hitnumC++;
+                                y--;
+                            }
+
+                            count = 5;
+                            found = true;
+
+                        }
+                        isHit[y][x] = true;
+                        
+                    } else {
+                        count = 5;
+                        prevhit = false;
+                    }
+                    break;
+                }
+                case 2: {
+                    x++;
+                    //cout << "x: " << x << endl << "y: " << y << endl;
+                    if(isHit[y][x] == false) {
+                        if(x < 10) {
+                            cout << "\n\nThe CPU attacked " << static_cast<char>(x+97) << y+1 <<"!\n";
+                            if(pBoard[y][x] == 0) {
+                                pBoard[y][x] = 1;
+                                cout << "Miss!";
+                                count++;
+                                x--;
+
+                            } else if(pBoard[y][x] == 2 || pBoard[y][x] == 3 ||
+                                      pBoard[y][x] == 4 || pBoard[y][x] == 5) {
+                                pBoard[y][x] = 6;
+                                cout << "Hit!";
+                                hitnumC++;
+                                prevhit = true;
+                            }
+
+                            found = true;
+
+                        } else if(x == 10) {
+                            cout << "\n\nThe CPU attacked " << static_cast<char>(x+97) << y+1 <<"!\n";
+                            if(pBoard[y][x] == 0) {
+                                pBoard[y][x] = 1;
+                                cout << "Miss!";
+
+                            } else if(pBoard[y][x] == 2 || pBoard[y][x] == 3 ||
+                                      pBoard[y][x] == 4 || pBoard[y][x] == 5) {
+                                pBoard[y][x] = 6;
+                                cout << "Hit!";
+                                hitnumC++;
+                            }
+
+                            count = 5;
+                            found = true;
+
+                        }
+                        isHit[y][x] = true;
+                        
+                    } else {
+                        count = 5;
+                        prevhit = false;
+                    }
+                    
+                    break;
+                }
+                case 3: {
+                    y++;
+                    //cout << "x: " << x << endl << "y: " << y << endl;
+                    if(isHit[y][x] == false) {
+                        if(y < 10) {
+                            cout << "\n\nThe CPU attacked " << static_cast<char>(x+97) << y+1 <<"!\n";
+                            if(pBoard[y][x] == 0) {
+                                pBoard[y][x] = 1;
+                                cout << "Miss!";
+                                count++;
+                                y--;
+
+                            } else if(pBoard[y][x] == 2 || pBoard[y][x] == 3 ||
+                                      pBoard[y][x] == 4 || pBoard[y][x] == 5) {
+                                pBoard[y][x] = 6;
+                                cout << "Hit!";
+                                hitnumC++;
+                                prevhit = true;
+                            }
+
+                            found = true;
+
+                        } else if(y == 10) {
+                            cout << "\n\nThe CPU attacked " << static_cast<char>(x+97) << y+1 <<"!\n";
+                            if(pBoard[y][x] == 0) {
+                                pBoard[y][x] = 1;
+                                cout << "Miss!";
+
+
+                            } else if(pBoard[y][x] == 2 || pBoard[y][x] == 3 ||
+                                      pBoard[y][x] == 4 || pBoard[y][x] == 5) {
+                                pBoard[y][x] = 6;
+                                cout << "Hit!";
+                                hitnumC++;
+                            }
+
+                            count = 5;
+                            found = true;
+
+                        } 
+                        isHit[y][x] = true;
+                        
+                    } else {
+                        
+                        count = 5;
+                        prevhit = false;
+                    }
+                    break;
+                }
+                case 4: {
+                    x--;
+                    //cout << "x: " << x << endl << "y: " << y << endl;
+                    if(isHit[y][x] == false) {
+                        if(x > 0) {
+                            cout << "\n\nThe CPU attacked " << static_cast<char>(x+97) << y+1 <<"!\n";
+                            if(pBoard[y][x] == 0) {
+                                pBoard[y][x] = 1;
+                                cout << "Miss!";
+                                count++;
+                                x++;
+
+                            } else if(pBoard[y][x] == 2 || pBoard[y][x] == 3 ||
+                                      pBoard[y][x] == 4 || pBoard[y][x] == 5) {
+                                pBoard[y][x] = 6;
+                                cout << "Hit!";
+                                hitnumC++;
+                                prevhit = true;
+                            }
+
+                            found = true;
+
+                        } else if(x == 0) {
+                            cout << "\n\nThe CPU attacked " << static_cast<char>(x+97) << y+1 <<"!\n";
+                            if(pBoard[y][x] == 0) {
+                                pBoard[y][x] = 1;
+                                cout << "Miss!";
+
+                            } else if(pBoard[y][x] == 2 || pBoard[y][x] == 3 ||
+                                      pBoard[y][x] == 4 || pBoard[y][x] == 5) {
+                                pBoard[y][x] = 6;
+                                cout << "Hit!";
+                                hitnumC++;
+                            }
+
+                            count = 5;
+                            found = true;
+
+                        } 
+                        isHit[y][x] = true;
+                        
+                    } else {
+                        
+                        count = 5;
+                        prevhit = false;
+                    }
+                    break;
+                }
+                default: {
+                    count = 5;
+                    prevhit = false;
+                }
+            }
+            //isHit[y][x] = true;
+            prevx = x;
+            prevy = y;
+            
+        } else if((roundno%6 == 0) && (roundno != 0)) {
+            cout << "working";
+            hitsrch(pBoard, x, y, ROWS);
+            cout << "\n\nThe CPU attacked " << static_cast<char>(x+97) << y+1 <<"!\n";
+            cout << "Hit!";
+            isHit[x][y] = true;
+            found = true;
+            
+        } else {
+            //cout << "working rand\n";
+            unsigned short x = (rand()%11),
+                           y = (rand()%11);
+            //cout << "x: " << x << endl << "y: " << y << endl;
+            //cout << "x: " << x << endl << "y: " << y << endl;
+            if(isHit[y][x] == false) {
+                
+                cout << "\n\nThe CPU attacked " << static_cast<char>(x+97) << y+1 <<"!\n";
+                if(pBoard[y][x] == 0) {
+                    pBoard[y][x] = 1;
+                    cout << "Miss!";
+                    
+                } else if(pBoard[y][x] == 2 || pBoard[y][x] == 3 ||
+                          pBoard[y][x] == 4 || pBoard[y][x] == 5) {
+                    pBoard[y][x] = 6;
+                    cout << "Hit!";
+                    hitnumC++;
+                    prevhit = true;
+                    count = 1;
+                    
+                    prevx = x;
+                    prevy = y;
+                }
+
+                isHit[y][x] = true;
+                found = true;
+            }
+        }
+         
+    } while(!found);
+}
+
+
+void hitsrch(unsigned short pBoard[][COLS], int& x, int& y, const unsigned short ROWS) {
+    for(int n = 0; n < ROWS; n++) {
+        for(int a = 0; a < COLS; a++) {
+            if(pBoard[n][a] == 2 || pBoard[n][a] == 3 ||
+               pBoard[n][a] == 4 || pBoard[n][a] == 5) {
+                pBoard[n][a] = 6;
+                
+                x = a;
+                y = n;
+                a = COLS;
+                n = ROWS;
+            }
+        }
+    }
+}
+
+
+
+bool isgameovr(unsigned short hitnumP, unsigned short hitnumC, bool& playerW, unsigned short pBoard[][COLS], unsigned short cBoard[][COLS], const unsigned short ROWS) {
+    if(hitnumP == 28 && hitnumC != 28) {
+        prntboard(pBoard, cBoard, ROWS);
+        cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+             << "\n\nGAME OVER\nCongratulations, You Win! You Have Sunken All of the Enemy's Ships\n";
+        playerW = true;
+        return true;
+        
+    } else if(hitnumC == 28 && hitnumP != 28) {
+        prntboard(pBoard, cBoard, ROWS);
+        cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+             << "\n\nGAME OVER\nYou Lose! All Your Ships Have Been Sunken";
+        return true;
+        
+    } else if(hitnumC == 28 && hitnumP == 28) {
+        prntboard(pBoard, cBoard, ROWS);
+        cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+             << "\n\nGAME OVER\nBoth Sides Have Destroyed Each Other! It's A Tie!\n";
+        return true;
+        
+    } else return false;
+}
+
+
+void getPname(const int LIMIT, unsigned int roundno) {
+    string plyrN[LIMIT]; // an array of user names from players who've won
+    int plyrR[LIMIT];    // an array of round counts for players who've won, the positions in the array correspond to
+                         // the same positions in the name array
+    static int index;
+    
+    ofstream pnIN;
+    ifstream pnOUT;
+    ofstream prIN;
+    ifstream prOUT;
+    
+    // fills the arrays with previous entrees
+    index = 0;
+    pnOUT.open("Playernames.txt");
+    while(pnOUT >> plyrN[index]) {
+        index++;
+    }
+    pnOUT.close();
+    
+    for(int n = 0; n <= index; n++) {
+        prOUT >> plyrR[n];
+    }
+    prOUT.close();
+    
+    // obtains the new entrees
+    cout << "Enter Username (No spaces, 10 Characters max): ";
+    cin >> plyrN[index];
+    plyrR[index] = roundno; 
+    
+    index++;
+    // Replaces the file data with the new data
+    pnIN.open("Playernames.txt");
+    for(int n = 0; n < index; n++) {
+        pnIN << plyrN[n] << " ";
+    }
+    pnIN.close();
+    
+    prIN.open("PlayerRounds.txt");
+    for(int n = 0; n < index; n++) {
+        prIN << plyrR[n] << " ";
+    }
+    prIN.close();
+}
+
+
+void getLeader(const int LIMIT) {
+    string plyrN[LIMIT]; // an array of user names from players who've won
+    int plyrR[LIMIT];    // an array of round counts for players who've won, the positions in the array correspond to
+                         // the same positions in the name array
+    int entrees = 0;
+    
+    for(int n = 0; n < LIMIT; n++) {
+        plyrN[n] = "--- ";
+        plyrR[n] = 0;
+    }
+    
+    ofstream pnIN;
+    ifstream pnOUT;
+    ofstream prIN;
+    ifstream prOUT;
+    
+    // fills the arrays with previous entrees
+    entrees = 0;
+    pnOUT.open("Playernames.txt");
+    while(pnOUT >> plyrN[entrees]) {
+        entrees++;
+        //cout << "entrees:" << entrees << endl;
+    }
+    pnOUT.close();
+
+    prOUT.open("PlayerRounds.txt");
+    for(int n = 0; n <= entrees; n++) {
+        prOUT >> plyrR[n];
+    }
+    prOUT.close();
+    
+    //cout << entrees << "\n";
+    entrySort(plyrN, plyrR, entrees);
+    
+    
+    if(entrees < 20 && entrees > 10) {
+        prntLeader(plyrN, plyrR, entrees);
+        
+    } else prntLeader(plyrN, plyrR);
+    
+}
+
+// sorted from lowest to highest round numbers using selection sort
+void entrySort(string plyrN[], int plyrR[], int SIZE) {
+    int temp1;    // a placeholder value for the arrays to swap
+    string temp2; 
+    //cout << SIZE << endl;;
+    
+    for(int n = 0; n < SIZE-1; n++) {
+        cout << n << endl;
+        int minindx = n,
+            min = plyrR[n];
+        for(int x = n+1; x < SIZE; x++) {
+            if(plyrR[x] < min) { 
+                min = plyrR[x];
+                minindx = x;
+            }
+        }
+        //cout << "Working 2\n";
+        //swaps array values
+        temp1 = plyrR[minindx];
+        plyrR[minindx] = plyrR[n];
+        plyrR[n] = temp1;
+        
+        //swaps array values
+        temp2 = plyrN[minindx];
+        plyrN[minindx] = plyrN[n];
+        plyrN[n] = temp2;
+    }
+}
+
+
+// INCLUDE A DEFAULT ARGUEMENT FOR THE LEADERBOARD SIZE
+void prntLeader(string plyrN[], int plyrR[], int entrees) {
+    cout << "      L E A D E R  B O A R D\n" 
+         << " ================================\n";
+    for(int n = 0; n < entrees; n++) {
+        cout << setw(13) << plyrN[n] << "   ||   "; 
+        cout << setw(7) << ((plyrR[n] != 0) ? plyrR[n]: 000) << endl;
+    }
+}
+
+
+
+/*
+ * Pseudo Code:
+ * create output file stream
+ * create input file stream
+ * 
+ * if: the file has no data, write "0 0", close file
+ * 
+ * open file for output: store file contents into variables:
+ * variable 1 = number of games won
+ * variable 2 = total games played
+ * 
+ * if: the player has won the current game, add 1 to variable 1
+ * add 1 to variable 2 regardless od whether the player won
+ * 
+ * open file for storage
+ * store contents of variable 1
+ * input a space " "
+ * store contents of variable 2
+ */
+// used at the end of the game
+void getWR(unsigned wincnt, unsigned gamenum, bool playerW) {
+    // VARIABLES:
+    float winrate; // a value to be calculated at the end, or in the records menu, where the program will tell the user their win rate across
+                   // all the games they've played
+    
+    
+    // WIN RATE CALCULATION HERE
+    // opens input and output objects
+    ofstream winsIN;
+    ifstream winsOUT("Winrecord.txt");
+
+    // if program does not detect data in the file (ie: if the file has just been created)
+    if(!(winsOUT >> wincnt >> gamenum)) {
+        winsOUT.close(); // closes input stream
+        winsIN.open("Winrecord.txt"); // opens file in output stream
+        winsIN << wincnt << " " << gamenum; // outputs the game number and win count into the file (both will be 0 at this time)
+        winsIN.close();
+    }
+
+    // reads from file
+    winsOUT.open("Winrecord.txt"); // stores the current game number and win count into the wincnt and gamenum variables
+    winsOUT >> wincnt >> gamenum;
+    winsOUT.close();
+    //cout << wincnt << " " << gamenum << endl;
+
+    if(playerW) wincnt++; // if the player won, increases win count
+
+    gamenum++; // increases game count regardless of if the player won or not
+
+    //cout << wincnt << " " << gamenum;
+    winrate = (static_cast<float>(wincnt)/gamenum)*100; // uses static cast to force floating point division
+    cout << fixed << setprecision(2) << "\nYour Win Rate is " << winrate << "%\n";
+
+    // writes new values back to file
+    winsIN.open("Winrecord.txt");
+    winsIN << wincnt << " " << gamenum; // separated by space so that the program knows to distinguish the 
+    winsIN.close();                     // two numbers as different variables 
+}
+
+/*
+ * Pseudo Code:
+ * create output file stream
+ * create input file stream
+ * 
+ * if: the file has no data, write "0 0", close file, return 1 (will prompt the user to play games to fill the records.)
+ * 
+ * 
+ * open file for output: store file contents into variables:
+ * variable 1 = number of games won
+ * variable 2 = total games played
+ * 
+ * 
+ * open file for storage
+ * store contents of variable 1
+ * input a space " "
+ * store contents of variable 2
+ */
+// used in the records section of the menu
+int getWR() {
+    unsigned int wincnt = 0,
+                 gamenum = 0;
+    // VARIABLES:
+    float winrate; // a value to be calculated at the end, or in the records menu, where the program will tell the user their win rate across
+                   // all the games they've played
+    
+    
+    // WIN RATE CALCULATION HERE
+    // opens input and output objects
+    ofstream winsIN;
+    ifstream winsOUT("Winrecord.txt");
+
+    // if program does not detect data in the file (ie: if the file has just been created)
+    if(!(winsOUT >> wincnt >> gamenum)) {
+        winsOUT.close(); // closes input stream
+        
+        winsIN.open("Winrecord.txt"); // opens file in output stream
+        winsIN << wincnt << " " << gamenum; // outputs the game number and win count into the file (both will be 0 at this time)
+        winsIN.close();
+        
+        cout << "Play A Game In Order to Display Records.\n";
+        return 0;
+    } 
+
+    if(wincnt == 0 && gamenum == 0) {
+        cout << "Play A Game In Order to Display Records.\n";
+        return 0;
+    }
+    
+    // reads from file
+    winsOUT.open("Winrecord.txt"); // stores the current game number and win count into the wincnt and gamenum variables
+    winsOUT >> wincnt >> gamenum;
+    winsOUT.close();
+    //cout << wincnt << " " << gamenum << endl;
+
+
+    //cout << wincnt << " " << gamenum;
+    winrate = (static_cast<float>(wincnt)/gamenum)*100; // uses static cast to force floating point division
+    cout << fixed << setprecision(2) << "\nYour Win Rate is " << winrate << "%\n";
+    //cout << "working";
+    return 0;
+}
+
+
+
+
+
+void storeRoundNum(vector<unsigned int> rounds, unsigned int roundno) {
+    ifstream rndsOUT("RoundRecord.txt");
+    ofstream rndsIN;
+    unsigned int roundct;
+    
+    rounds.clear();
+    
+    while(rndsOUT >> roundct) {
+        rounds.push_back(roundct);
+    }
+    rndsOUT.close();
+    rounds.push_back(roundno);
+    
+    rndsIN.open("RoundRecord.txt");
+    for(int n = 0; n < rounds.size(); n++) {
+        rndsIN << rounds[n] << " ";
+    }
+}
+
+int getRoundAVE(vector<unsigned int> rounds) {
+    unsigned int rndcnt = 0,
+                 dummy,
+                 gamenum;
+    float rndave;
+    unsigned int temp = 0;
+    //cout << "working";
+    ifstream winsOUT("Winrecord.txt");
+    ifstream rndsOUT("Roundrecord.txt");
+    if(!(winsOUT >> dummy >> gamenum)) {
+        winsOUT.close();
+        return 0;
+        
+    } else if(!(rndsOUT >> dummy)) {
+        rndsOUT.close();
+        return 0;
+    }
+    rndsOUT.close();
+    
+    winsOUT.open("Winrecord.txt");
+    winsOUT >> dummy >> gamenum;
+    winsOUT.close();
+    
+    rounds.clear();
+    
+    rndsOUT.open("Roundrecord.txt");
+    while(rndsOUT >> temp) {
+        //cout << "SEfasf" << temp;
+        rounds.push_back(temp);
+    }
+    rndsOUT.close();
+    //cout << rounds.size();
+    for(int n = 0; n < rounds.size(); n++) {
+        //cout << "dfrgsdfg" << rounds[n];
+        rndcnt += rounds[n];
+    }
+    //cout << gamenum << rndcnt;
+    rndave = static_cast<float>(rndcnt)/gamenum;
+    
+    cout << "Your games last on average " << fixed << setprecision(2) << rndave << " rounds\n";
+    return 0;
+}
+
+
+void recordWipe() {
+    ofstream winsIN;
+    ofstream rndsIN;
+    ofstream pnIN;
+    ofstream prIN;
+    char clear;  // a variable to hold y/n, used to determine whether the player wishes to clear the win record
+    
+    cout << " Would you like to clear the records? (Y/N)\n";
+    cin >> clear;
+    if(clear == 'Y' || clear == 'y') {
+        winsIN.open("Winrecord.txt");
+        winsIN << ""; // rewrites the file as nothing ("")
+        winsIN.close();
+        rndsIN.open("Roundrecord.txt");
+        rndsIN << "";
+        rndsIN.close();
+        pnIN.open("Playernames.txt");
+        pnIN << "";
+        pnIN.close();
+        prIN.open("PlayerRounds.txt");
+        prIN << "";
+        prIN.close();
+        
+        cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+             << " THE RECORDS HAVE BEEN CLEARED\n\n";
+    } else cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+                << " THE RECORDS HAVE NOT BEEN CLEARED\n\n";
+}
